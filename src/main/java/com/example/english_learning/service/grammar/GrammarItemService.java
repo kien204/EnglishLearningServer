@@ -6,6 +6,8 @@ import com.example.english_learning.models.GrammarCategory;
 import com.example.english_learning.models.GrammarItem;
 import com.example.english_learning.repository.grammar.GrammarCategoryRepository;
 import com.example.english_learning.repository.grammar.GrammarItemRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.poi.ss.usermodel.*;
@@ -27,18 +29,14 @@ import java.util.Optional;
 @Service
 public class GrammarItemService {
 
+    ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     private GrammarCategoryRepository grammarCategoryRepository;
-
     @Autowired
     private GrammarItemRepository grammarItemRepository;
-
     @Autowired
     private GrammarItemMapper grammarItemMapper;
 
-    // ==============================
-    // CREATE
-    // ==============================
     public ResponseEntity<?> create(GrammarItemRequest request) {
         GrammarCategory category = grammarCategoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResponseStatusException(
@@ -54,9 +52,19 @@ public class GrammarItemService {
         return ResponseEntity.ok("Thêm thành công ngữ pháp.");
     }
 
-    // ==============================
-    // UPDATE
-    // ==============================
+    public ResponseEntity<?> createWithJson(List<GrammarItemRequest> requests) {
+        List<GrammarItem> categoryList = new ArrayList<>();
+        for (GrammarItemRequest request : requests) {
+            GrammarItem item = grammarItemMapper.toEntity(request);
+            GrammarCategory category = grammarCategoryRepository.findById(request.getCategoryId()).orElse(null);
+            item.setCategory(category);
+            categoryList.add(item);
+        }
+        grammarItemRepository.saveAll(categoryList);
+
+        return ResponseEntity.ok("Thêm ngữ pháp thành công");
+    }
+
     public ResponseEntity<?> update(Long id, GrammarItemRequest request) {
         GrammarCategory category = grammarCategoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResponseStatusException(
@@ -64,17 +72,13 @@ public class GrammarItemService {
                         "Không tìm thấy category id = " + request.getCategoryId()
                 ));
 
-        GrammarItem grammarItem = grammarItemRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Không tìm thấy ngữ pháp cần sửa."
-                ));
-
-        grammarItem.setTip(request.getTip());
-        grammarItem.setTitle(request.getTitle());
-        grammarItem.setExample(request.getExample());
-        grammarItem.setStructure(request.getStructure());
-        grammarItem.setImageUrl(request.getImageUrl());
-        grammarItem.setExplanation(request.getExplanation());
+        if (!grammarItemRepository.existsById(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Không tìm thấy ngữ pháp cần sửa."
+            );
+        }
+        GrammarItem grammarItem = grammarItemMapper.toEntity(request);
+        grammarItem.setId(id);
         grammarItem.setCategory(category);
 
         grammarItemRepository.save(grammarItem);
@@ -82,9 +86,6 @@ public class GrammarItemService {
         return ResponseEntity.ok("Cập nhật ngữ pháp thành công.");
     }
 
-    // ==============================
-    // DELETE
-    // ==============================
     public ResponseEntity<?> delete(Long id) {
         if (!grammarItemRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy ngữ pháp cần xóa.");
@@ -94,9 +95,11 @@ public class GrammarItemService {
         return ResponseEntity.ok("Xóa ngữ pháp thành công.");
     }
 
-    // ==============================
-    // IMPORT CSV
-    // ==============================
+    public ResponseEntity<?> deleteAll() {
+        grammarItemRepository.deleteAll();
+        return ResponseEntity.ok("Xoá tất cả ngữ pháp thành công");
+    }
+
     public ResponseEntity<?> importCsv(MultipartFile file) {
         List<String> skipped = new ArrayList<>();
         int success = 0;
@@ -118,16 +121,6 @@ public class GrammarItemService {
                     skipped.add("Dòng " + row + " thiếu dữ liệu → bỏ qua");
                     continue;
                 }
-
-                // CSV structure:
-                // 0:id
-                // 1:category_id
-                // 2:title
-                // 3:structure
-                // 4:explanation
-                // 5:example
-                // 6:tip
-                // 7:imageUrl
 
                 Long categoryId;
                 try {
@@ -169,10 +162,6 @@ public class GrammarItemService {
         ));
     }
 
-
-    // ==============================
-    // IMPORT XLSX
-    // ==============================
     public ResponseEntity<?> importXlsx(MultipartFile file) {
         List<String> skipped = new ArrayList<>();
         int success = 0;
@@ -231,6 +220,33 @@ public class GrammarItemService {
                 "skipped", skipped.size(),
                 "skipped_detail", skipped
         ));
+    }
+
+    public ResponseEntity<?> importFromJson(MultipartFile itemFile) throws IOException {
+        List<Map<String, Object>> vocabList = objectMapper.readValue(
+                itemFile.getInputStream(),
+                new TypeReference<List<Map<String, Object>>>() {
+                }
+        );
+
+        for (Map<String, Object> data : vocabList) {
+            GrammarItem item = new GrammarItem();
+            item.setTitle((String) data.get("title"));
+            item.setStructure((String) data.get("structure"));
+            item.setExplanation((String) data.get("explanation"));
+            item.setImageUrl((String) data.get("imageUrl"));
+            item.setTip((String) data.get("tip"));
+            item.setExample((String) data.get("example"));
+            Long id = Long.parseLong(data.get("categoryId").toString());
+
+            GrammarCategory grammarCategory = grammarCategoryRepository.findById(id).orElse(null);
+
+            item.setCategory(grammarCategory);
+
+            grammarItemRepository.save(item);
+        }
+
+        return ResponseEntity.ok("Thêm danh sách Ngữ pháp thành công");
     }
 
     public ResponseEntity<?> getAlḷ() {

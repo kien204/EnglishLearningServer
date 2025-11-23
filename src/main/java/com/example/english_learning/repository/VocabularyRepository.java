@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface VocabularyRepossitory extends JpaRepository<Vocabulary, Long> {
+public interface VocabularyRepository extends JpaRepository<Vocabulary, Long> {
     boolean existsByWord(String id);
 
     Vocabulary findByWord(String word);

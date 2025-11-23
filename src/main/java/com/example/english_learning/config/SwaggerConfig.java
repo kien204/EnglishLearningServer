@@ -17,6 +17,14 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI apiInfo() {
+        Server ngrokServer = new Server()
+                .url("https://nonvoluntary-dianoetically-marilynn.ngrok-free.dev")
+                .description("Ngrok Tunnel");
+
+        Server localServer = new Server()
+                .url("http://localhost:8082")
+                .description("Local Server");
+
         return new OpenAPI()
 
                 // 🔥 Bật JWT để có nút Authorize trên Swagger
@@ -29,9 +37,10 @@ public class SwaggerConfig {
                 ))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
 
-                .servers(List.of(
-                        new Server().url("http://localhost:8082").description("Local server")
-                ))
+//                .servers(List.of(
+//                        new Server().url("http://localhost:8082").description("Local server")
+//                ))
+                .servers(List.of(localServer, ngrokServer))
                 .info(new Info()
                         .title("English Learning API")
                         .description("API documentation for the English Learning application")

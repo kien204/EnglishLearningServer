@@ -7,17 +7,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "grammar_groups")
+@Table(name = "levels")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GrammarGroup {
-
+public class Level {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true, length = 10)
+    private String code;  // ví dụ: A1, B2, C2
+
     @Column(nullable = false, columnDefinition = "NVARCHAR(MAX)")
-    private String title;
+    private String name;  // ví dụ: Beginner, Intermediate
+
+    @Column(nullable = true)
+    private Integer ordering;  // thứ tự hiển thị
+
 }

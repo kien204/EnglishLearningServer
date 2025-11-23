@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Entity
@@ -15,6 +14,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String name;
     private String email;
     private String password;
@@ -23,10 +23,4 @@ public class User {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
-    private List<Vocabulary> vocabularies;
-
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
-    private List<QuizQuestion> quizQuestions;
 }

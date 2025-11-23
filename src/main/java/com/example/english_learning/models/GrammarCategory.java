@@ -21,6 +21,6 @@ public class GrammarCategory {
     @JoinColumn(name = "group_id", nullable = false)
     private GrammarGroup group;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(MAX)")
     private String title;
 }

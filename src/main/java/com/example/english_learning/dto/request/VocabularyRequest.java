@@ -5,13 +5,14 @@ import lombok.Data;
 @Data
 public class VocabularyRequest {
     private String word;
-    private String wordType;   // trước là enum
-    private String phonetic;
-    private String meaning;
+    private String pos;
+    private String pron;
+    private String meaningVn;
     private String v2;
     private String v3;
-    private String level;      // trước là enum Level
-    private String topic;
-    private String audioUrl;
-    private String example;
+    private String exampleEn;
+    private String exampleVn;
+
+    private Long levelId;
+    private Long topicId;
 }
