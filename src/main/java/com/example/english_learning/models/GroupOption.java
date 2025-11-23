@@ -7,17 +7,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "grammar_groups")
+@Table(name = "group_options")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GrammarGroup {
-
+public class GroupOption {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, columnDefinition = "NVARCHAR(MAX)")
-    private String title;
+    @Column(name = "question_option_id")
+    private Long questionOptionId;
+
+    @Column(name = "option_text", columnDefinition = "NVARCHAR(MAX)")
+    private String optionText;
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,6 +21,11 @@ public class GrammarItemController {
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody GrammarItemRequest request) {
         return grammarItemService.create(request);
+    }
+
+    @PostMapping("/create/withJson")
+    public ResponseEntity<?> create(@RequestBody List<GrammarItemRequest> request) {
+        return grammarItemService.createWithJson(request);
     }
 
     @PutMapping("/update/{id}")
@@ -38,6 +44,11 @@ public class GrammarItemController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         return grammarItemService.delete(id);
+    }
+
+    @DeleteMapping("/delete/all")
+    public ResponseEntity<?> delete() {
+        return grammarItemService.deleteAll();
     }
 
     @PostMapping(
@@ -62,9 +73,12 @@ public class GrammarItemController {
             } else if (fileName.endsWith(".xlsx")) {
                 return grammarItemService.importXlsx(file);
 
+            } else if (fileName.endsWith(".json")) {
+                return grammarItemService.importFromJson(file);
+
             } else {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Định dạng không hỗ trợ. Chỉ CSV, TXT, XLSX."));
+                        .body(Map.of("message", "Định dạng không hỗ trợ. Chỉ CSV, TXT, JSON, XLSX."));
             }
 
         } catch (Exception e) {

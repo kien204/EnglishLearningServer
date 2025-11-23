@@ -1,6 +1,6 @@
 package com.example.english_learning.config;
 
-import com.example.english_learning.Utils.JwtUtil;
+import com.example.english_learning.security.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

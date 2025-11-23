@@ -46,6 +46,8 @@ public class VocabularyController {
         try {
             if (fileName.endsWith(".csv")) {
                 vocabularyService.importFromCsv(file);
+            } else if (fileName.endsWith(".json")) {
+                vocabularyService.importFromJson(file);
             } else if (fileName.endsWith(".txt")) {
                 vocabularyService.importFromCsv(file);
             } else if (fileName.endsWith(".xlsx")) {
@@ -83,6 +85,15 @@ public class VocabularyController {
         return vocabularyService.getVocabularyByWork(word);
     }
 
+    @DeleteMapping("/deleteAll")
+    public ResponseEntity<?> delteAllLevel() {
+        return vocabularyService.deleteAll();
+    }
+
+    @DeleteMapping("/deleteById/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable Long id) {
+        return vocabularyService.deleteById(id);
+    }
 
 }
 

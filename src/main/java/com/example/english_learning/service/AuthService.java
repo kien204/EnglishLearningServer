@@ -1,7 +1,6 @@
 package com.example.english_learning.service;
 
 import com.example.english_learning.Utils.CheckEmailUtils;
-import com.example.english_learning.Utils.JwtUtil;
 import com.example.english_learning.dto.request.ResetPasswordRequest;
 import com.example.english_learning.dto.request.auth.LoginRequest;
 import com.example.english_learning.dto.request.auth.RegisterRequest;
@@ -9,6 +8,7 @@ import com.example.english_learning.dto.response.LoginResponse;
 import com.example.english_learning.mapper.AuthMapper;
 import com.example.english_learning.models.User;
 import com.example.english_learning.repository.UserRepository;
+import com.example.english_learning.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
