@@ -37,12 +37,12 @@ public class GrammarItemService {
     @Autowired
     private GrammarItemMapper grammarItemMapper;
 
+    @Autowired
+    private GrammarCategoryService categoryService;
+
+
     public ResponseEntity<?> create(GrammarItemRequest request) {
-        GrammarCategory category = grammarCategoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Không tìm thấy category id = " + request.getCategoryId()
-                ));
+        GrammarCategory category = categoryService.findById(request.getCategoryId());
 
         GrammarItem item = grammarItemMapper.toEntity(request);
         item.setCategory(category);
@@ -66,11 +66,7 @@ public class GrammarItemService {
     }
 
     public ResponseEntity<?> update(Long id, GrammarItemRequest request) {
-        GrammarCategory category = grammarCategoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Không tìm thấy category id = " + request.getCategoryId()
-                ));
+        GrammarCategory category = categoryService.findById(request.getCategoryId());
 
         if (!grammarItemRepository.existsById(id)) {
             throw new ResponseStatusException(

@@ -1,6 +1,7 @@
 package com.example.english_learning.controller;
 
 import com.example.english_learning.dto.request.LevelResquest;
+import com.example.english_learning.models.Level;
 import com.example.english_learning.service.LevelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +19,8 @@ public class LevelController {
     }
 
     @GetMapping("/getById/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
-        return levelService.findById(id);
+    public Level getById(@PathVariable Long id) {
+        return levelService.getById(id);
     }
 
     @PostMapping("/create")
@@ -39,6 +40,6 @@ public class LevelController {
 
     @DeleteMapping("/deleteById/{id}")
     public ResponseEntity<?> deleteById(@PathVariable Long id) {
-        return levelService.deleteLevel(id);
+        return levelService.deleteById(id);
     }
 }

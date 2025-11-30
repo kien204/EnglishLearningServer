@@ -19,14 +19,13 @@ public class GrammarCategoryService {
     private GrammarCategoryRepository grammarCategoryRepository;
 
     @Autowired
+    private GrammarGroupService grammarCategoryService;
+
+    @Autowired
     private GrammarGroupRepository grammarGroupRepository;
 
     public ResponseEntity<?> create(GrammarCategoryRequest request) {
-        GrammarGroup grammarGroup = grammarGroupRepository.findById(request.getGroupId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Không tìm thấy nhóm ngữ pháp id = " + request.getGroupId()
-                ));
+        GrammarGroup grammarGroup = grammarCategoryService.getGrammarGroupById(request.getGroupId());
 
         GrammarCategory grammarCategory = new GrammarCategory();
         grammarCategory.setTitle(request.getTitle());
@@ -42,11 +41,7 @@ public class GrammarCategoryService {
                         "Không tìm thấy nhóm ngữ pháp id = " + id
                 ));
 
-        GrammarGroup grammarGroup = grammarGroupRepository.findById(request.getGroupId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Không tìm thấy nhóm ngữ pháp id = " + request.getGroupId()
-                ));
+        GrammarGroup grammarGroup = grammarCategoryService.getGrammarGroupById(request.getGroupId());
 
         grammarCategory.setTitle(request.getTitle());
         grammarCategory.setGroup(grammarGroup);
@@ -57,5 +52,13 @@ public class GrammarCategoryService {
 
     public ResponseEntity<List<GrammarCategory>> findAll() {
         return ResponseEntity.ok(grammarCategoryRepository.findAll());
+    }
+
+    public GrammarCategory findById(Long id) {
+        return grammarCategoryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Không tìm thấy nhóm ngữ pháp"
+                ));
     }
 }

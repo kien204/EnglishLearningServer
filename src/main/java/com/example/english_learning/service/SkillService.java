@@ -3,68 +3,52 @@ package com.example.english_learning.service;
 import com.example.english_learning.dto.request.SkillRequest;
 import com.example.english_learning.models.Skill;
 import com.example.english_learning.repository.SkillRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class SkillService {
-    @Autowired
-    private SkillRepository skillRepository;
 
+    private final SkillRepository skillRepository;
+
+    // -------------------- CRUD --------------------
     public ResponseEntity<?> getAll() {
-        List<Skill> skills = skillRepository.findAll();
-
-        return ResponseEntity.ok(skills);
+        return ResponseEntity.ok(skillRepository.findAll());
     }
 
-    public ResponseEntity<?> getById(Long id) {
-        Skill skill = skillRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "Không tìm thấy Kỹ năng"));
-        return ResponseEntity.ok(skill);
+    public Skill getById(Long id) {
+        return skillRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Kỹ năng."));
     }
 
-    public ResponseEntity<?> createSkill(SkillRequest request) {
-
+    public ResponseEntity<?> createSkill(SkillRequest req) {
         Skill skill = new Skill();
-        skill.setName(request.getName());
-        skill.setDescription(request.getDescription());
-        skill.setCode(request.getCode());
+        skill.setName(req.getName());
+        skill.setDescription(req.getDescription());
+        skill.setCode(req.getCode());
         skillRepository.save(skill);
-
-        return ResponseEntity.ok(Map.of("message", "Thêm Kỹ năng mới thành công"));
+        return ResponseEntity.ok("Tạo Kỹ năng thành công.");
     }
 
-    public ResponseEntity<?> updateSkill(Long id, SkillRequest request) {
-        Skill skill = skillRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Kỹ năng id = " + id));
-
-        skill.setName(request.getName());
-        skill.setDescription(request.getDescription());
-        skill.setCode(request.getCode());
-        skill.setId(id);
-
+    public ResponseEntity<?> updateSkill(Long id, SkillRequest req) {
+        Skill skill = getById(id);
+        skill.setName(req.getName());
+        skill.setDescription(req.getDescription());
+        skill.setCode(req.getCode());
         skillRepository.save(skill);
-
-        return ResponseEntity.ok(Map.of("message", "Cập nhật Kỹ năng thành công"));
+        return ResponseEntity.ok("Cập nhật Kỹ năng thành công.");
     }
 
-    public ResponseEntity<?> deleteSkill(Long id) {
-
-        if (!skillRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Kỹ năng id = " + id);
-        }
-
-        skillRepository.deleteById(id);
-        return ResponseEntity.ok(Map.of("message", "Xóa Kỹ năng thành công"));
+    public ResponseEntity<?> deleteById(Long id) {
+        Skill skill = getById(id);
+        skillRepository.delete(skill);
+        return ResponseEntity.ok("Xóa Kỹ năng thành công.");
     }
 
     public ResponseEntity<?> deleteAll() {
         skillRepository.deleteAll();
-        return ResponseEntity.ok(Map.of("message", "Xóa Kỹ năng tất cả thành công"));
+        return ResponseEntity.ok("Xóa tất cả Kỹ năng thành công.");
     }
 }

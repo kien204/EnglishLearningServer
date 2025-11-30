@@ -17,16 +17,16 @@ public class QuestionOption {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", nullable = false)
+    @JoinColumn(name = "question_id", nullable = true)
     private Question question;
+
     @Column(name = "option_text", columnDefinition = "NVARCHAR(MAX)")
     private String optionText;
+
     @Column(name = "is_correct")
     private Boolean isCorrect;
-
-    @Column(columnDefinition = "NVARCHAR(MAX)")
-    private String correct;
 
     @JsonProperty("question")
     public Long getQuestionId() {

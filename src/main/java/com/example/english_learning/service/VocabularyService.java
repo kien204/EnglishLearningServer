@@ -2,293 +2,211 @@ package com.example.english_learning.service;
 
 import com.example.english_learning.dto.request.VocabularyRequest;
 import com.example.english_learning.mapper.VocabularyMapper;
-import com.example.english_learning.models.Level;
-import com.example.english_learning.models.Topic;
 import com.example.english_learning.models.Vocabulary;
-import com.example.english_learning.repository.LevelRepository;
-import com.example.english_learning.repository.TopicRepository;
 import com.example.english_learning.repository.VocabularyRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class VocabularyService {
 
-    ObjectMapper objectMapper = new ObjectMapper();
-    @Autowired
-    private VocabularyMapper vocabularyMapper;
-    @Autowired
-    private VocabularyRepository vocabularyRepossitory;
-    @Autowired
-    private LevelRepository levelRepository;
-    @Autowired
-    private TopicRepository topicRepository;
+    private final VocabularyRepository vocabularyRepository;
+    private final VocabularyMapper vocabularyMapper;
+    private final ToEntityService toEntityService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String createVocabulary(VocabularyRequest vocabularyRequest) {
-        Level level = levelRepository.findById(vocabularyRequest.getLevelId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy Level"));
-        Topic topic = topicRepository.findById(vocabularyRequest.getTopicId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy Topic"));
-        Vocabulary vocabulary = vocabularyMapper.toEntity(vocabularyRequest);
-        vocabulary.setLevel(level);
-        vocabulary.setTopic(topic);
-
-        vocabularyRepossitory.save(vocabulary);
-
-        return "Thêm từ vựng thành công";
-
-    }
-
-    public ResponseEntity<?> importFromJson(MultipartFile vocabularyFile) throws IOException {
-        List<Map<String, Object>> vocabList = objectMapper.readValue(
-                vocabularyFile.getInputStream(),
-                new TypeReference<List<Map<String, Object>>>() {
-                }
-        );
-
-        for (Map<String, Object> data : vocabList) {
-            Vocabulary vocab = new Vocabulary();
-            vocab.setWord((String) data.get("word"));
-            vocab.setPos((String) data.get("pos"));
-            vocab.setPron((String) data.get("pron"));
-            vocab.setMeaningVn((String) data.get("meaning_vn"));
-            vocab.setV2(data.get("v2") == null || ((String) data.get("v2")).isEmpty() ? null : (String) data.get("v2"));
-            vocab.setV3(data.get("v3") == null || ((String) data.get("v3")).isEmpty() ? null : (String) data.get("v3"));
-            vocab.setExampleEn((String) data.get("example_en"));
-            vocab.setExampleVn((String) data.get("example_vn"));
-
-            // Lấy Level và Topic từ DB
-            Long levelId = Long.parseLong(data.get("level_id").toString());
-            Long topicId = Long.parseLong(data.get("topic_id").toString());
-
-            Level level = levelRepository.findById(levelId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy Level, id=" + levelId));
-            Topic topic = topicRepository.findById(topicId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy Topic, id=" + topicId));
-
-            vocab.setLevel(level);
-            vocab.setTopic(topic);
-
-            vocabularyRepossitory.save(vocab);
+    // -------------------- CRUD --------------------
+    public ResponseEntity<?> createVocabulary(VocabularyRequest req) {
+        if (vocabularyRepository.existsByWord(req.getWord()) && vocabularyRepository.existsByPos(req.getPos())) {
+            throw new RuntimeException("Từ vựng đã tồn tại");
         }
 
-        return ResponseEntity.ok("Thêm danh sách từ vựng thành công");
+        Vocabulary vocab = vocabularyMapper.toEntity(req);
+        vocab.setLevel(toEntityService.getLevel(req.getLevelId()));
+        vocab.setTopic(toEntityService.getTopic(req.getTopicId()));
+
+        vocabularyRepository.save(vocab);
+        return ResponseEntity.ok("Tạo từ vựng thành công");
+    }
+
+    public Vocabulary updateVocabulary(Long id, VocabularyRequest req) {
+        Vocabulary vocab = toEntityService.getVocabulary(id);
+        vocab.setWord(req.getWord());
+        vocab.setPos(req.getPos());
+        vocab.setPron(req.getPron());
+        vocab.setMeaningVn(req.getMeaningVn());
+        vocab.setV2(req.getV2());
+        vocab.setV3(req.getV3());
+        vocab.setExampleEn(req.getExampleEn());
+        vocab.setExampleVn(req.getExampleVn());
+        vocab.setGroupWord(req.getGroupWord());
+        vocab.setLevel(toEntityService.getLevel(req.getLevelId()));
+        vocab.setTopic(toEntityService.getTopic(req.getTopicId()));
+
+        return vocabularyRepository.save(vocab);
+    }
+
+    public ResponseEntity<?> deleteById(Long id) {
+        Vocabulary vocab = getById(id);
+        vocabularyRepository.delete(vocab);
+        return ResponseEntity.ok("Đã xóa từ vựng " + vocab.getWord());
+    }
+
+    public ResponseEntity<?> deleteAll() {
+        vocabularyRepository.deleteAll();
+        return ResponseEntity.ok("Đã xóa tất cả từ vựng");
+    }
+
+    public List<Vocabulary> getAllVocabulary() {
+        return vocabularyRepository.findAll();
+    }
+
+    public List<Vocabulary> getByTopic(Long topicId) {
+        toEntityService.getTopic(topicId); // kiểm tra tồn tại
+        return vocabularyRepository.findByTopic_Id(topicId);
+    }
+
+    public Vocabulary getById(Long id) {
+        return toEntityService.getVocabulary(id);
+    }
+
+    public Vocabulary getByWord(String word) {
+        Vocabulary vocab = vocabularyRepository.findByWord(word);
+        if (vocab == null) throw new RuntimeException("Không tìm thấy từ vựng " + word);
+        return vocab;
+    }
+
+    // -------------------- Import --------------------
+    public void importFromJson(MultipartFile file) throws IOException {
+        List<Map<String, Object>> list = objectMapper.readValue(file.getInputStream(), new TypeReference<>() {
+        });
+        for (Map<String, Object> data : list) {
+            importVocabularyMap(data);
+        }
     }
 
     public void importFromCsv(MultipartFile file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
-            boolean isFirstLine = true;
-
+            boolean first = true;
             while ((line = reader.readLine()) != null) {
-                // Bỏ header nếu có
-                if (isFirstLine) {
-                    if (line.toLowerCase().contains("word")) {
-                        isFirstLine = false;
-                        continue;
-                    }
-                    isFirstLine = false;
+                if (first) {
+                    first = false;
+                    if (line.toLowerCase().contains("word")) continue;
                 }
-
-                List<String> data = new ArrayList<>();
+                List<String> cols = new ArrayList<>();
                 Matcher m = Pattern.compile("(\"[^\"]*\"|[^,]+)").matcher(line);
                 while (m.find()) {
-                    String value = m.group(1);
-                    if (value.startsWith("\"") && value.endsWith("\"")) {
-                        value = value.substring(1, value.length() - 1); // bỏ dấu ngoặc kép
-                    }
-                    data.add(value);
+                    String val = m.group(1);
+                    if (val.startsWith("\"") && val.endsWith("\"")) val = val.substring(1, val.length() - 1);
+                    cols.add(val);
                 }
-
-                if (data.size() < 10)
-                    continue; // 10 cột: word,pos,pron,meaning,v2,v3,level_id,topic_id,example_en,example_vn
-
-                Vocabulary vocab = new Vocabulary();
-                vocab.setWord(data.get(0).trim());
-                vocab.setPos(data.get(1).trim());
-                vocab.setPron(data.get(2).trim());
-                vocab.setMeaningVn(data.get(3).trim());
-                vocab.setV2(data.get(4).trim().isEmpty() ? null : data.get(4).trim());
-                vocab.setV3(data.get(5).trim().isEmpty() ? null : data.get(5).trim());
-                vocab.setExampleEn(data.get(8).trim());
-                vocab.setExampleVn(data.get(9).trim());
-
-                // fetch Level & Topic từ DB
-                Long levelId = Long.parseLong(data.get(6).trim());
-                Long topicId = Long.parseLong(data.get(7).trim());
-
-                Level level = levelRepository.findById(levelId)
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy Level, id=" + levelId));
-                Topic topic = topicRepository.findById(topicId)
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy Topic, id=" + topicId));
-
-                vocab.setLevel(level);
-                vocab.setTopic(topic);
-
-                vocabularyRepossitory.save(vocab);
+                if (cols.size() < 10) continue;
+                importVocabularyCsv(cols);
             }
         }
     }
-
 
     public void importFromXlsx(MultipartFile file) throws IOException {
         try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> rowIterator = sheet.iterator();
-
-            boolean isFirstRow = true;
-
-            while (rowIterator.hasNext()) {
-                Row row = rowIterator.next();
-
-                if (isFirstRow) {
-                    Cell headerCell = row.getCell(0);
-                    if (headerCell != null && headerCell.getStringCellValue().toLowerCase().contains("word")) {
-                        isFirstRow = false;
+            boolean firstRow = true;
+            for (Row row : sheet) {
+                if (firstRow) {
+                    firstRow = false;
+                    if (row.getCell(0) != null && row.getCell(0).getStringCellValue().toLowerCase().contains("word"))
                         continue;
-                    }
-                    isFirstRow = false;
                 }
-
                 if (row.getPhysicalNumberOfCells() < 10) continue;
-
-                Vocabulary vocab = new Vocabulary();
-                vocab.setWord(getCellValue(row.getCell(0)));
-                vocab.setPos(getCellValue(row.getCell(1)));
-                vocab.setPron(getCellValue(row.getCell(2)));
-                vocab.setMeaningVn(getCellValue(row.getCell(3)));
-                vocab.setV2(getCellValue(row.getCell(4)));
-                vocab.setV3(getCellValue(row.getCell(5)));
-                vocab.setExampleEn(getCellValue(row.getCell(8)));
-                vocab.setExampleVn(getCellValue(row.getCell(9)));
-
-                // fetch Level & Topic từ DB
-                Long levelId = Long.parseLong(getCellValue(row.getCell(6)));
-                Long topicId = Long.parseLong(getCellValue(row.getCell(7)));
-
-                Level level = levelRepository.findById(levelId)
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy Level, id=" + levelId));
-                Topic topic = topicRepository.findById(topicId)
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy Topic, id=" + topicId));
-
-
-                vocab.setLevel(level);
-                vocab.setTopic(topic);
-
-                vocabularyRepossitory.save(vocab);
+                importVocabularyXlsx(row);
             }
         }
     }
 
+    // -------------------- Helper --------------------
+    private void importVocabularyMap(Map<String, Object> data) {
+        Vocabulary vocab = new Vocabulary();
+        vocab.setWord((String) data.get("word"));
+        vocab.setPos((String) data.get("pos"));
+        vocab.setPron((String) data.get("pron"));
+        vocab.setMeaningVn((String) data.get("meaningVn"));
+        vocab.setV2((data.get("v2") == null || ((String) data.get("v2")).isEmpty()) ? null : (String) data.get("v2"));
+        vocab.setV3((data.get("v3") == null || ((String) data.get("v3")).isEmpty()) ? null : (String) data.get("v3"));
+        vocab.setExampleEn((String) data.get("exampleEn"));
+        vocab.setExampleVn((String) data.get("exampleVn"));
+        vocab.setGroupWord((Integer) data.get("groupWord"));
+        vocab.setLevel(toEntityService.getLevel(getLong(data.get("levelId"))));
+        vocab.setTopic(toEntityService.getTopic(getLong(data.get("topicId"))));
 
-    public Object updateVocabulary(Long id, VocabularyRequest vocabularyRequest) {
-        if (!vocabularyRepossitory.existsById(id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Không tìm thấy từ vựng id = " + id
-            );
-        }
-        Level level = levelRepository.findById(vocabularyRequest.getLevelId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy Level"));
-        Topic topic = topicRepository.findById(vocabularyRequest.getTopicId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy Topic"));
-
-        Vocabulary vocabulary = vocabularyMapper.toEntity(vocabularyRequest);
-        vocabulary.setLevel(level);
-        vocabulary.setTopic(topic);
-        vocabulary.setId(id);
-
-        vocabularyRepossitory.save(vocabulary);
-
-        return Map.of("message", "Sửa từ vựng thành công");
-
+        vocabularyRepository.save(vocab);
     }
 
-    public List<Vocabulary> getAllVocabulary() {
-        return vocabularyRepossitory.findAll();
+    private void importVocabularyCsv(List<String> cols) {
+        Vocabulary vocab = new Vocabulary();
+        vocab.setWord(cols.get(0).trim());
+        vocab.setPos(cols.get(1).trim());
+        vocab.setPron(cols.get(2).trim());
+        vocab.setMeaningVn(cols.get(3).trim());
+        vocab.setV2(cols.get(4).trim().isEmpty() ? null : cols.get(4).trim());
+        vocab.setV3(cols.get(5).trim().isEmpty() ? null : cols.get(5).trim());
+        vocab.setExampleEn(cols.get(8).trim());
+        vocab.setExampleVn(cols.get(9).trim());
+        vocab.setGroupWord(Integer.parseInt(cols.get(10).trim()));
+        vocab.setLevel(toEntityService.getLevel(Long.parseLong(cols.get(6).trim())));
+        vocab.setTopic(toEntityService.getTopic(Long.parseLong(cols.get(7).trim())));
+
+        vocabularyRepository.save(vocab);
     }
 
-    public Vocabulary getVocabularyById(long id) {
-        if (!vocabularyRepossitory.existsById(id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Không tìm thấy từ vựng id = " + id
-            );
-        }
+    private void importVocabularyXlsx(Row row) {
+        Vocabulary vocab = new Vocabulary();
+        vocab.setWord(getCellValue(row.getCell(0)));
+        vocab.setPos(getCellValue(row.getCell(1)));
+        vocab.setPron(getCellValue(row.getCell(2)));
+        vocab.setMeaningVn(getCellValue(row.getCell(3)));
+        vocab.setV2(getCellValue(row.getCell(4)));
+        vocab.setV3(getCellValue(row.getCell(5)));
+        vocab.setExampleEn(getCellValue(row.getCell(8)));
+        vocab.setExampleVn(getCellValue(row.getCell(9)));
+        vocab.setGroupWord(Integer.parseInt(getCellValue(row.getCell(10))));
+        vocab.setLevel(toEntityService.getLevel(Long.parseLong(getCellValue(row.getCell(6)))));
+        vocab.setTopic(toEntityService.getTopic(Long.parseLong(getCellValue(row.getCell(7)))));
 
-        return vocabularyRepossitory.findById(id).get();
-    }
-
-    public Vocabulary getVocabularyByWork(String word) {
-        if (!vocabularyRepossitory.existsByWord(word)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Không tìm thấy từ vựng " + word
-            );
-        }
-
-        return vocabularyRepossitory.findByWord(word);
+        vocabularyRepository.save(vocab);
     }
 
     private String getCellValue(Cell cell) {
         if (cell == null) return "";
-
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue().trim();
-
-            case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getDateCellValue().toString();
-                }
-                return String.valueOf((long) cell.getNumericCellValue()).trim();
-
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-
-            case FORMULA:
-                return cell.getRichStringCellValue().getString().trim();
-
-            case BLANK:
-            default:
-                return "";
-        }
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue().trim();
+            case NUMERIC -> String.valueOf((long) cell.getNumericCellValue()).trim();
+            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
+            case FORMULA -> cell.getRichStringCellValue().getString().trim();
+            default -> "";
+        };
     }
 
-    public ResponseEntity<?> deleteById(long id) {
-        if (!vocabularyRepossitory.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Không tìm thất từ vựng cần xóa");
-        }
-
-        vocabularyRepossitory.deleteById(id);
-
-        return ResponseEntity.ok("Xóa thành công");
+    private Long getLong(Object val) {
+        if (val == null) return null;
+        if (val instanceof Number) return ((Number) val).longValue();
+        return Long.parseLong(val.toString());
     }
 
-    public ResponseEntity<?> deleteAll() {
-
-
-        vocabularyRepossitory.deleteAll();
-
-        return ResponseEntity.ok("Xóa thành công");
-    }
 }

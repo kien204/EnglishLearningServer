@@ -1,6 +1,6 @@
 package com.example.english_learning.service.quiz;
 
-import com.example.english_learning.controller.quiz.QuestionOptionRequest;
+import com.example.english_learning.dto.request.quiz.QuestionOptionRequest;
 import com.example.english_learning.models.Question;
 import com.example.english_learning.models.QuestionOption;
 import com.example.english_learning.repository.quiz.QuestionOptionRepository;
@@ -29,7 +29,6 @@ public class QuestionOptionService {
                 .question(question)
                 .optionText(request.getOptionText())
                 .isCorrect(request.getIsCorrect())
-                .correct(request.getCorrect())
                 .build();
 
         questionOptionRepository.save(questionOption);
@@ -37,14 +36,18 @@ public class QuestionOptionService {
     }
 
     public ResponseEntity<?> update(Long id, QuestionOptionRequest request) {
+        if (!questionOptionRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Tùy chọn câu hỏi");
+        }
+
         Question question = questionRepository.findById(request.getQuestionId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Câu hỏi"));
+
 
         QuestionOption questionOption = QuestionOption.builder()
                 .question(question)
                 .optionText(request.getOptionText())
                 .isCorrect(request.getIsCorrect())
-                .correct(request.getCorrect())
                 .id(id)
                 .build();
 

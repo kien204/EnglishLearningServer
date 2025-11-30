@@ -1,6 +1,7 @@
 package com.example.english_learning.controller;
 
 import com.example.english_learning.dto.request.SkillRequest;
+import com.example.english_learning.models.Skill;
 import com.example.english_learning.service.SkillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class SkillController {
     }
 
     @GetMapping("/getById/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
+    public Skill getById(@PathVariable Long id) {
         return skillService.getById(id);
     }
 
@@ -39,6 +40,6 @@ public class SkillController {
 
     @DeleteMapping("/deleteById/{id}")
     public ResponseEntity<?> deleteSkill(@PathVariable Long id) {
-        return skillService.deleteSkill(id);
+        return skillService.deleteById(id);
     }
 }

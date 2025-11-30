@@ -1,5 +1,6 @@
 package com.example.english_learning.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,9 +18,12 @@ public class GroupOption {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "question_option_id")
-    private Long questionOptionId;
+    @JoinColumn(name = "exercise_id", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Exercise exercise;
 
     @Column(name = "option_text", columnDefinition = "NVARCHAR(MAX)")
     private String optionText;
+
 }

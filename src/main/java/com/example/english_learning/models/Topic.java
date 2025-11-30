@@ -19,7 +19,7 @@ public class Topic {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "skill_id", nullable = false)
+    @JoinColumn(name = "skill_id", nullable = true)
     private Skill skill;
 
     @ManyToOne(fetch = FetchType.LAZY)
