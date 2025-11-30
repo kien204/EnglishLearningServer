@@ -18,7 +18,7 @@ public class GrammarCategory {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "group_id", nullable = false)
+    @JoinColumn(name = "group_id", nullable = true)
     private GrammarGroup group;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(MAX)")

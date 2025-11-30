@@ -9,6 +9,7 @@ import com.example.english_learning.models.User;
 import com.example.english_learning.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,6 +44,11 @@ public class AuthController {
     @PostMapping("/resend-otp")
     public String resendOtp(@RequestBody EmailRequest emailRequest) {
         return authService.resendOtp(emailRequest.getEmail());
+    }
+
+    @PutMapping("/activate-account/{email}/{otp}")
+    public ResponseEntity<?> activateAccount(@PathVariable("email") String email, @PathVariable("otp") String otp) {
+        return authService.activateUser(email, otp);
     }
 
     @Operation(summary = "Cập nhật vai trò tài khoản")

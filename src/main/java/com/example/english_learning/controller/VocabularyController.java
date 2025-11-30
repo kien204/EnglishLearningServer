@@ -25,7 +25,7 @@ public class VocabularyController {
             description = "API cho phép admin tạo một từ vựng mới"
     )
     @PostMapping("/createVocabulary")
-    public String createVocabulary(@RequestBody VocabularyRequest request) {
+    public ResponseEntity<?> createVocabulary(@RequestBody VocabularyRequest request) {
         return vocabularyService.createVocabulary(request);
     }
 
@@ -54,7 +54,7 @@ public class VocabularyController {
                 vocabularyService.importFromXlsx(file);
             } else {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("mes", "Định dạng không hỗ trợ. Chỉ hỗ trợ CSV, TXT, XLSX"));
+                        .body(Map.of("mes", "Định dạng không hỗ trợ. Chỉ hỗ trợ CSV, JSON, TXT, XLSX"));
             }
 
             return ResponseEntity.ok(Map.of("mes", "Import dữ liệu thành công"));
@@ -77,12 +77,17 @@ public class VocabularyController {
 
     @GetMapping("/getById/{id}")
     public Vocabulary getVocabularyById(@PathVariable Long id) {
-        return vocabularyService.getVocabularyById(id);
+        return vocabularyService.getById(id);
+    }
+
+    @GetMapping("/getByTopic/{id}")
+    public List<Vocabulary> getByTopic(@PathVariable Long id) {
+        return vocabularyService.getByTopic(id);
     }
 
     @GetMapping("/getByWord")
     public Vocabulary getVocabularyByWord(@RequestParam String word) {
-        return vocabularyService.getVocabularyByWork(word);
+        return vocabularyService.getByWord(word);
     }
 
     @DeleteMapping("/deleteAll")

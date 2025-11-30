@@ -17,6 +17,7 @@ public class VocabularyMapper {
         vocabulary.setMeaningVn(vocabularyRequest.getMeaningVn());
         vocabulary.setExampleEn(vocabularyRequest.getExampleEn());
         vocabulary.setExampleVn(vocabularyRequest.getExampleVn());
+        vocabulary.setGroupWord(vocabularyRequest.getGroupWord());
         return vocabulary;
     }
 }

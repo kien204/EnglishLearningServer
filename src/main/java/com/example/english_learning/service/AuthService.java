@@ -9,8 +9,11 @@ import com.example.english_learning.mapper.AuthMapper;
 import com.example.english_learning.models.User;
 import com.example.english_learning.repository.UserRepository;
 import com.example.english_learning.security.JwtUtil;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -55,40 +58,64 @@ public class AuthService {
             );
         }
 
+        if (!user.isActivate()) {
+            String otp = otpService.generateOtp(loginRequest.getEmail());
+            try {
+                mailService.sendOtp(loginRequest.getEmail(), otp);
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Gửi mail thất bại!");
+            }
+            return LoginResponse.builder()
+                    .message("Tài khoản chưa được kích hoạt. Mã OTP đã được gửi đến email của bạn.")
+                    .isActivate(false)
+                    .build();
+        }
+
         String token = jwtUtil.generateAccessToken(user);
 
         return LoginResponse.builder()
                 .message("Đăng nhập thành công")
+                .isActivate(true)
                 .token(token)
                 .user(Map.of(
                         "userId", user.getId(),
-                        "fullName", user.getName(),
-                        "email", user.getEmail()
+                        "name", user.getName(),
+                        "email", user.getEmail(),
+                        "password", user.getPassword(),
+                        "phone", user.getPhone(),
+                        "role", user.getRole(),
+                        "isActivate", user.isActivate()
                 ))
                 .build();
     }
 
 
+    @Transactional
     public String register(RegisterRequest registerRequest) {
 
         if (!checkEmailUtils.isValidGmail(registerRequest.getEmail())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Email không hợp lệ!"
-            );
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email không hợp lệ!");
         }
 
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Email đã được sử dụng!"
-            );
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã được sử dụng!");
         }
 
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        String otp = otpService.generateOtp(registerRequest.getEmail());
 
-        userRepository.save(authMapper.toEntity(registerRequest));
+        try {
+            mailService.sendOtp(registerRequest.getEmail(), otp); // đồng bộ
+            userRepository.save(authMapper.toEntity(registerRequest)); // lưu user
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã được sử dụng!");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Gửi mail thất bại!");
+        }
 
         return "Đăng ký thành công";
     }
+
 
     public String sendOtp(String email) {
         if (!userRepository.existsByEmail(email)) {
@@ -98,7 +125,12 @@ public class AuthService {
         }
 
         String otp = otpService.generateOtp(email);
-        mailService.sendOtp(email, otp);
+
+        try {
+            mailService.sendOtp(email, otp);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Gửi mail thất bại!");
+        }
 
         return "Đã gửi mã OTP đến email của bạn";
     }
@@ -144,15 +176,38 @@ public class AuthService {
         }
 
         String otp = otpService.generateResetOtp(email);
-        mailService.sendOtp(email, otp);
+
+        try {
+            mailService.sendOtp(email, otp);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Gửi mail thất bại!");
+        }
 
         return "Đã gửi lại mã OTP đến email của bạn";
+    }
+
+    public ResponseEntity<?> activateUser(String email, String otp) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Email chưa được đăng ký!"));
+
+        if (!otpService.validateOtp(email, otp)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Mã OTP không hợp lệ hoặc đã hết hạn!"
+            );
+        }
+
+        user.setActivate(Boolean.TRUE);
+        userRepository.save(user);
+
+        otpService.clearOtp(email);
+
+        return ResponseEntity.ok("Kích hoạt tài khoản thành công");
     }
 
     public User getUserById(int id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Không tìm thấy người dùng với ID: " + id
+                        HttpStatus.NOT_FOUND, "Không tìm thấy người dùng."
                 ));
 
         return user;
@@ -168,11 +223,11 @@ public class AuthService {
     public String deleteUserById(int id) {
         if (!userRepository.existsById(id)) {
             throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Không tìm thấy người dùng với ID: " + id
+                    HttpStatus.NOT_FOUND, "Không tìm thấy người dùng."
             );
         }
 
         userRepository.deleteById(id);
-        return "Xóa người dùng thành công (ID: " + id + ")";
+        return "Xóa người dùng thành công.";
     }
 }

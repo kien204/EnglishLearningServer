@@ -3,64 +3,52 @@ package com.example.english_learning.service;
 import com.example.english_learning.dto.request.LevelResquest;
 import com.example.english_learning.models.Level;
 import com.example.english_learning.repository.LevelRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class LevelService {
-    @Autowired
-    private LevelRepository levelRepository;
 
+    private final LevelRepository levelRepository;
+
+    // -------------------- CRUD --------------------
     public ResponseEntity<?> getAll() {
         return ResponseEntity.ok(levelRepository.findAll());
     }
 
-    public ResponseEntity<?> findById(Long id) {
-        Level level = levelRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "Không tìm thấy Cấp độ"));
-        return ResponseEntity.ok(level);
+    public Level getById(Long id) {
+        return levelRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Cấp độ id = " + id));
     }
 
-    public ResponseEntity<?> createLevel(LevelResquest resquest) {
+    public ResponseEntity<?> createLevel(LevelResquest req) {
         Level level = new Level();
-        level.setName(resquest.getName());
-        level.setCode(resquest.getCode());
-        level.setOrdering(resquest.getOrdering());
+        level.setName(req.getName());
+        level.setCode(req.getCode());
+        level.setOrdering(req.getOrdering());
         levelRepository.save(level);
-        return ResponseEntity.ok(Map.of("message", "Thêm Cấp độ mới thành công"));
+        return ResponseEntity.ok("Tạo cấp độ thành công");
     }
 
-    public ResponseEntity<?> updateLevel(Long id, LevelResquest resquest) {
-        Level level = levelRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "Không tìm thấy cấp độ cần cập nhật"));
-        level.setName(resquest.getName());
-        level.setCode(resquest.getCode());
-        level.setOrdering(resquest.getOrdering());
-        level.setId(id);
+    public ResponseEntity<?> updateLevel(Long id, LevelResquest req) {
+        Level level = getById(id);
+        level.setName(req.getName());
+        level.setCode(req.getCode());
+        level.setOrdering(req.getOrdering());
         levelRepository.save(level);
-
-        return ResponseEntity.ok(Map.of("message", "Cập nhật Cấp độ thành công"));
-
+        return ResponseEntity.ok("Cập nhật cấp độ thành công");
     }
 
-    public ResponseEntity<?> deleteLevel(Long id) {
-        if (!levelRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Cấp độ cần xóa");
-        }
-        levelRepository.deleteById(id);
-
-        return ResponseEntity.ok(Map.of("message", "Xóa Cấp độ thành công"));
+    public ResponseEntity<?> deleteById(Long id) {
+        Level level = getById(id);
+        levelRepository.delete(level);
+        return ResponseEntity.ok("Xóa cấp độ thành công");
     }
 
     public ResponseEntity<?> deleteAll() {
-
         levelRepository.deleteAll();
-
-        return ResponseEntity.ok(Map.of("message", "Xóa tất cả Cấp độ thành công"));
+        return ResponseEntity.ok("Xóa tất cả cấp độ thành công");
     }
 }

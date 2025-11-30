@@ -1,7 +1,7 @@
 package com.example.english_learning.models;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,11 +22,12 @@ public class GrammarItem {
 
     // category_id
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    @JsonIgnoreProperties("group")
+    @JoinColumn(name = "category_id", nullable = true)
+    // @JsonIgnoreProperties("group")
+    @JsonBackReference
     private GrammarCategory category;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String title;
 
     @Column(columnDefinition = "NVARCHAR(MAX)")

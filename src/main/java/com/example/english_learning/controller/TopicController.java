@@ -1,6 +1,7 @@
 package com.example.english_learning.controller;
 
 import com.example.english_learning.dto.request.TopicRequest;
+import com.example.english_learning.models.Topic;
 import com.example.english_learning.service.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,8 +24,8 @@ public class TopicController {
     }
 
     @GetMapping("/getById/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
-        return topicService.findById(id);
+    public Topic getById(@PathVariable Long id) {
+        return topicService.getById(id);
     }
 
     @PostMapping("/create")
@@ -44,7 +45,7 @@ public class TopicController {
 
     @DeleteMapping("/deleteById/{id}")
     public ResponseEntity<?> deleteTopic(@PathVariable Long id) {
-        return topicService.deleteTopic(id);
+        return topicService.deleteById(id);
     }
 
     @PostMapping(

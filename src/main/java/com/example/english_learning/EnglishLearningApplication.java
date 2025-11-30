@@ -14,6 +14,8 @@ public class EnglishLearningApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // Lấy port, mặc định 8080
+
+
         String port = System.getProperty("server.port", "8082");
 
         // URL Swagger hoặc frontend

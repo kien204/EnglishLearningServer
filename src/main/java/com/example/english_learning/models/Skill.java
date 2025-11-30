@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
 @Table(name = "skills")
 @Data
@@ -28,6 +26,6 @@ public class Skill {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
-    @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Topic> topics;
+//    @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Topic> topics;
 }

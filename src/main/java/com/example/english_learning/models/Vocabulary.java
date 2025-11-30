@@ -33,11 +33,11 @@ public class Vocabulary {
     private String v3; // động từ bất quy tắc V3
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "level_id", nullable = false)
+    @JoinColumn(name = "level_id", nullable = true)
     private Level level; // liên kết tới bảng levels
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "topic_id", nullable = false)
+    @JoinColumn(name = "topic_id", nullable = true)
     private Topic topic; // liên kết tới bảng topics
 
     @Column(columnDefinition = "NVARCHAR(MAX)")
@@ -46,16 +46,19 @@ public class Vocabulary {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String exampleVn; // ví dụ tiếng Việt
 
+    @Column(name = "group_word")
+    private Integer groupWord; // ví dụ tiếng Việt
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @JsonProperty("level")
-    public String getLevelName() {
-        return level != null ? level.getName() : null;
+    public long getLevelName() {
+        return level != null ? level.getId() : null;
     }
 
     @JsonProperty("topic")
-    public String getTopicName() {
-        return topic != null ? topic.getName() : null;
+    public long getTopicName() {
+        return topic != null ? topic.getId() : null;
     }
 }
