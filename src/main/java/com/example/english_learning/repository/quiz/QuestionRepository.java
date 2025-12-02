@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-    public List<Question> findByExercise_Id(Long exercise);
+    List<Question> findByExercise_Id(Long exercise);
 }

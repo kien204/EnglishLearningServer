@@ -3,6 +3,7 @@ package com.example.english_learning.service;
 import com.example.english_learning.dto.request.TopicRequest;
 import com.example.english_learning.models.Topic;
 import com.example.english_learning.repository.TopicRepository;
+import com.example.english_learning.repository.VocabularyRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +34,9 @@ public class TopicService {
     @Autowired
     private LevelService levelService;
 
+    @Autowired
+    private VocabularyRepository vocabularyRepository;
+
     // -------------------- CRUD --------------------
     public ResponseEntity<?> getAll() {
         return ResponseEntity.ok(topicRepository.findAll());
@@ -40,6 +45,23 @@ public class TopicService {
     public Topic getById(Long id) {
         return topicRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Chủ đề."));
+    }
+
+    public ResponseEntity<?> getTreeTopic(Long id) {
+        List<Topic> listTopic = topicRepository.findBySkill_Id(id);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (Topic topic : listTopic) {
+
+            List<Integer> groupWords =
+                    vocabularyRepository.findGroupWordByTopic(topic);
+
+            result.add(Map.of("topic_id", topic.getId(),
+                    "topic_name", topic.getName(),
+                    "group_words", groupWords));
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     public ResponseEntity<?> createTopic(TopicRequest req) {

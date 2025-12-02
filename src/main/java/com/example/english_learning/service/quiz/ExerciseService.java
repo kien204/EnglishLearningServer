@@ -2,8 +2,6 @@ package com.example.english_learning.service.quiz;
 
 import com.example.english_learning.dto.request.quiz.ExerciseRequest;
 import com.example.english_learning.models.Exercise;
-import com.example.english_learning.models.Level;
-import com.example.english_learning.models.Skill;
 import com.example.english_learning.models.Topic;
 import com.example.english_learning.repository.LevelRepository;
 import com.example.english_learning.repository.SkillRepository;
@@ -37,12 +35,6 @@ public class ExerciseService {
     private CloudinaryService cloudinaryService;
 
     public ResponseEntity<?> create(ExerciseRequest request) {
-        Skill skill = skillRepository.findById(request.getSkillId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Skill"));
-
-        Level level = levelRepository.findById(request.getLevelId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Level"));
-
         Topic topic = topicRepository.findById(request.getTopicId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Topic"));
 
@@ -53,13 +45,11 @@ public class ExerciseService {
 
 
         Exercise exercise = Exercise.builder()
-                .skill(skill)
-                .level(level)
                 .topic(topic)
+                .groupWord(request.getGroupWord())
                 .title(request.getTitle())
                 .type(request.getType())
                 .description(request.getDescription())
-                .ordering(request.getOrdering())
                 .imageUrl(imageUrl)
                 .audioUrl(request.getAudioUrl())
                 .build();
@@ -74,12 +64,6 @@ public class ExerciseService {
         Exercise exercise = exerciseRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Exercise"));
 
-        Skill skill = skillRepository.findById(request.getSkillId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Skill"));
-
-        Level level = levelRepository.findById(request.getLevelId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Level"));
-
         Topic topic = topicRepository.findById(request.getTopicId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Topic"));
 
@@ -87,13 +71,11 @@ public class ExerciseService {
             exercise.setImageUrl(cloudinaryService.uploadFile(request.getImage()));
         }
 
-        exercise.setSkill(skill);
-        exercise.setLevel(level);
         exercise.setTopic(topic);
+        exercise.setGroupWord(request.getGroupWord());
         exercise.setTitle(request.getTitle());
         exercise.setType(request.getType());
         exercise.setDescription(request.getDescription());
-        exercise.setOrdering(request.getOrdering());
         exercise.setAudioUrl(request.getAudioUrl());
 
         exerciseRepository.save(exercise);

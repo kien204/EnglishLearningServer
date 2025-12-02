@@ -24,20 +24,15 @@ public class Exercise {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "skill_id", nullable = true)
-    private Skill skill;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "level_id", nullable = true)
-    private Level level;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id", nullable = true)
     private Topic topic;
 
+    @Column(name = "group_word")
+    private Integer groupWord;
+
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String title;
-    private int type;
+    private int type; // 0:Single Choice 1:Multiple Choice 2: Dropdown 3:Điền chữ / Text Input 4:Nói
 
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
@@ -49,8 +44,6 @@ public class Exercise {
     @Column(name = "audio_url")
     private String audioUrl;
 
-    private int ordering;
-
     @OneToMany(mappedBy = "exercise")
     @JsonIgnore
     private List<Question> questions;
@@ -58,16 +51,6 @@ public class Exercise {
     @OneToMany(mappedBy = "exercise")
     @JsonIgnore
     private List<GroupOption> groupOptions;
-
-    @JsonProperty("level")
-    public String getLevelName() {
-        return level != null ? level.getName() : null;
-    }
-
-    @JsonProperty("skill")
-    public String getSkillName() {
-        return skill != null ? skill.getName() : null;
-    }
 
     @JsonProperty("topic")
     private String getTopicName() {

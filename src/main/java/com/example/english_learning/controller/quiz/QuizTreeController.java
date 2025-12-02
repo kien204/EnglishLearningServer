@@ -10,32 +10,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@RequestMapping("/quiz-tree")
+@RequestMapping("/api/quiz-tree")
 @RestController
 public class QuizTreeController {
     @Autowired
     private QuizTreeService quizTreeService;
 
-    @GetMapping("/getBySkillTopicLevel/{skillId}/{topicId}/{levelId}")
-    public List<QuizTreeResponse> getQuiz(@PathVariable Long skillId,
-                                          @PathVariable Long topicId,
-                                          @PathVariable Long levelId) {
-        return quizTreeService.getQuizTree(skillId, topicId, levelId);
+    @GetMapping("/getByTopic/{topicId}")
+    public List<QuizTreeResponse> getQuiz(@PathVariable Long topicId) {
+        return quizTreeService.getQuizTree(topicId);
     }
 
-    @PostMapping("/createQuizTree")
-    public ResponseEntity<?> createQuizTree(@RequestBody List<QuizTreeRequest> quizTreeRequests) {
-        return quizTreeService.createQuizTree(quizTreeRequests);
+    @GetMapping("/getByGroupWord/{groupWord}")
+    public List<QuizTreeResponse> getQuizByGroupWord(@PathVariable int groupWord) {
+        return quizTreeService.getQuizByGroupWord(groupWord);
     }
 
     @PostMapping(
-            value = "/upload",
+            value = "/upload-quiz-json",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadQuizJson(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("mes", "File trống"));
         }
@@ -44,28 +43,21 @@ public class QuizTreeController {
         if (fileName == null) {
             return ResponseEntity.badRequest().body(Map.of("mes", "Không xác định được tên file"));
         }
-
         try {
-//            if (fileName.endsWith(".csv")) {
-//                quizTreeService.importFromCsv(file);
-//            } else if (fileName.endsWith(".json")) {
-//                return vocabularyService.importFromJson(file);
-//            } else if (fileName.endsWith(".txt")) {
-//                vocabularyService.importFromCsv(file);
-//            } else if (fileName.endsWith(".xlsx")) {
-//                vocabularyService.importFromXlsx(file);
-//            } else {
-//                return ResponseEntity.badRequest()
-//                        .body(Map.of("mes", "Định dạng không hỗ trợ. Chỉ hỗ trợ CSV, TXT, XLSX"));
-//            }
-
-            quizTreeService.importFromJson(file);
-
-            return ResponseEntity.ok(Map.of("mes", "Import dữ liệu thành công"));
-        } catch (Exception e) {
+            quizTreeService.uploadQuizFile(file);
+            return ResponseEntity.ok("Tạo cây câu hỏi từ file JSON thành công");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("mes", "Lỗi khi đọc file: " + e.getMessage()));
+                    .body("Lỗi đọc file JSON: " + e.getMessage());
         }
     }
+
+    @PostMapping("/createQuizTree")
+    public ResponseEntity<?> createQuizTree(@RequestBody QuizTreeRequest quizTreeRequests) {
+        return quizTreeService.createQuizTree(quizTreeRequests);
+    }
+
 }
