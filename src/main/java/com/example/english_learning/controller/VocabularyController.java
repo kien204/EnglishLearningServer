@@ -90,6 +90,11 @@ public class VocabularyController {
         return vocabularyService.getByWord(word);
     }
 
+    @GetMapping("/getByGroup/{id}")
+    public List<Vocabulary> getVocabularyByGroup(@PathVariable int id) {
+        return vocabularyService.getByListByGroup(id);
+    }
+
     @DeleteMapping("/deleteAll")
     public ResponseEntity<?> delteAllLevel() {
         return vocabularyService.deleteAll();

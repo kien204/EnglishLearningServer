@@ -93,6 +93,10 @@ public class VocabularyService {
         return vocab;
     }
 
+    public List<Vocabulary> getByListByGroup(int group) {
+        return vocabularyRepository.findByGroupWord(group);
+    }
+
     // -------------------- Import --------------------
     public void importFromJson(MultipartFile file) throws IOException {
         List<Map<String, Object>> list = objectMapper.readValue(file.getInputStream(), new TypeReference<>() {

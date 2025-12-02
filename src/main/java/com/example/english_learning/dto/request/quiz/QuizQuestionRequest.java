@@ -6,14 +6,13 @@ import java.util.List;
 
 @Data
 public class QuizQuestionRequest {
-    private Long skillId;
-    private Long LevelId;
     private Long TopicId;
     private Long vocabularyId;
     private Long grammarId;
     private Long exerciseId;
     private String question_text;
     private String corrrect;
+    private Integer groupWord; // ví dụ tiếng Việt
     private Integer ordering;
     private List<OptionRequest> options;
 

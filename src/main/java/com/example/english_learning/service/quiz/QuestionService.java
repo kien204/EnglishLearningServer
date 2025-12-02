@@ -37,7 +37,7 @@ public class QuestionService {
 
         Question savedQuestion = Question.builder()
                 .questionText(request.getQuestionText())
-                .ordering(request.getOrdering())
+                .groupWord(request.getGroupWord())
                 .exercise(exercise)
                 .build();
         questionRepository.save(savedQuestion);
@@ -54,7 +54,7 @@ public class QuestionService {
                 "Câu hỏi không tồn tại"));
 
         existingQuestion.setQuestionText(request.getQuestionText());
-        existingQuestion.setOrdering(request.getOrdering());
+        existingQuestion.setGroupWord(request.getGroupWord());
         existingQuestion.setExercise(exercise);
         questionRepository.save(existingQuestion);
         return ResponseEntity.ok("Cập nhật câu hỏi thành công");

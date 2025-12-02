@@ -25,14 +25,6 @@ public class Question {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "skill_id", nullable = true)
-    private Skill skill;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "level_id", nullable = true)
-    private Level level;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id", nullable = true)
     private Topic topic;
 
@@ -55,8 +47,8 @@ public class Question {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String correct;
 
-    @Column(nullable = true)  // tạm thời CHO NULL
-    private int ordering;
+    @Column(name = "group_word")
+    private Integer groupWord; // ví dụ tiếng Việt
 
     @OneToMany(mappedBy = "question")
     @JsonIgnoreProperties("exercise")
@@ -65,16 +57,6 @@ public class Question {
     @JsonProperty("exercise")
     public Long getExerciseId() {
         return exercise != null ? exercise.getId() : null;
-    }
-
-    @JsonProperty("level")
-    public String getLevelName() {
-        return level != null ? level.getName() : null;
-    }
-
-    @JsonProperty("skill")
-    public String getSkillName() {
-        return skill != null ? skill.getName() : null;
     }
 
     @JsonProperty("topic")

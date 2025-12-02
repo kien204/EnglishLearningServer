@@ -31,9 +31,9 @@ public class AuthController {
         return authService.register(registerRequest);
     }
 
-    @PostMapping("/send-otp")
+    @PostMapping("/forgot-password")
     public String sendOtp(@RequestBody EmailRequest emailRequest) {
-        return authService.sendOtp(emailRequest.getEmail());
+        return authService.forgotPassword(emailRequest.getEmail());
     }
 
     @PutMapping("/reset-password")

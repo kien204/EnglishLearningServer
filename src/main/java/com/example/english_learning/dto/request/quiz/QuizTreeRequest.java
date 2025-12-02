@@ -6,14 +6,12 @@ import java.util.List;
 
 @Data
 public class QuizTreeRequest {
-    private Long skillId;
-    private Long levelId;
     private Long topicId;
+    private Integer groupWord;
     private String title;
     private int type;
     private String imageUrl;
     private String audioUrl;
-    private int ordering;
     private List<String> groupOptionList;
     private List<QuizTreeRequest.SubQuestionNode> subQuestionNodes;
 

@@ -4,7 +4,7 @@ import com.example.english_learning.dto.request.quiz.GroupOptionRequest;
 import com.example.english_learning.models.Exercise;
 import com.example.english_learning.models.GroupOption;
 import com.example.english_learning.repository.quiz.ExerciseRepository;
-import com.example.english_learning.repository.quiz.GroupOptionResponse;
+import com.example.english_learning.repository.quiz.GroupOptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +14,13 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class GroupOptionService {
     @Autowired
-    private GroupOptionResponse groupOptionResponse;
+    private GroupOptionRepository groupOptionRepository;
 
     @Autowired
     private ExerciseRepository exerciseRepository;
 
     public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(groupOptionResponse.findAll());
+        return ResponseEntity.ok(groupOptionRepository.findAll());
     }
 
     public ResponseEntity<?> getOptionTextsByExerciseId(Long exerciseId) {
@@ -28,15 +28,15 @@ public class GroupOptionService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "exercise not found");
         }
 
-        return ResponseEntity.ok(groupOptionResponse.findOptionTextByExerciseId(exerciseId));
+        return ResponseEntity.ok(groupOptionRepository.findOptionTextByExerciseId(exerciseId));
     }
 
     public ResponseEntity<?> getById(Long id) {
-        if (!groupOptionResponse.existsById(id)) {
+        if (!groupOptionRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group option not found");
         }
 
-        return ResponseEntity.ok(groupOptionResponse.findById(id));
+        return ResponseEntity.ok(groupOptionRepository.findById(id));
     }
 
     public ResponseEntity<?> saveGroup(GroupOptionRequest request) {
@@ -50,12 +50,12 @@ public class GroupOptionService {
         groupOption.setOptionText(request.getOptionText());
         groupOption.setExercise(exercise);
 
-        groupOptionResponse.save(groupOption);
+        groupOptionRepository.save(groupOption);
         return ResponseEntity.ok("Tạo lựa chọn thành công");
     }
 
     public ResponseEntity<?> updateGroup(Long id, GroupOptionRequest request) {
-        if (!groupOptionResponse.existsById(id)) {
+        if (!groupOptionRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group option not found");
         }
 
@@ -69,21 +69,21 @@ public class GroupOptionService {
         groupOption.setOptionText(request.getOptionText());
         groupOption.setExercise(exercise);
 
-        groupOptionResponse.save(groupOption);
+        groupOptionRepository.save(groupOption);
         return ResponseEntity.ok("Cập nhật lựa chọn thành công");
     }
 
     public ResponseEntity<?> deleteAll() {
-        groupOptionResponse.deleteAll();
+        groupOptionRepository.deleteAll();
         return ResponseEntity.ok("Xóa tất cả lựa chọn thành công");
     }
 
     public ResponseEntity<?> deleteGroup(Long id) {
-        if (!groupOptionResponse.existsById(id)) {
+        if (!groupOptionRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group option not found");
         }
 
-        groupOptionResponse.deleteById(id);
+        groupOptionRepository.deleteById(id);
         return ResponseEntity.ok("Xóa lựa chọn thành công");
     }
 }

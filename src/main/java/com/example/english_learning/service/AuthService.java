@@ -1,6 +1,7 @@
 package com.example.english_learning.service;
 
 import com.example.english_learning.Utils.CheckEmailUtils;
+import com.example.english_learning.Utils.CheckPhone;
 import com.example.english_learning.dto.request.ResetPasswordRequest;
 import com.example.english_learning.dto.request.auth.LoginRequest;
 import com.example.english_learning.dto.request.auth.RegisterRequest;
@@ -43,6 +44,9 @@ public class AuthService {
 
     private CheckEmailUtils checkEmailUtils;
 
+    private CheckPhone checkPhone;
+
+
     public LoginResponse login(LoginRequest loginRequest) {
 
         // 1. Lấy user theo email
@@ -66,7 +70,6 @@ public class AuthService {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Gửi mail thất bại!");
             }
             return LoginResponse.builder()
-                    .message("Tài khoản chưa được kích hoạt. Mã OTP đã được gửi đến email của bạn.")
                     .isActivate(false)
                     .build();
         }
@@ -97,6 +100,10 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email không hợp lệ!");
         }
 
+        if (!checkPhone.isValidPhone(registerRequest.getPhone())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại không hợp lệ!");
+        }
+
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã được sử dụng!");
         }
@@ -117,7 +124,7 @@ public class AuthService {
     }
 
 
-    public String sendOtp(String email) {
+    public String forgotPassword(String email) {
         if (!userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Email chưa được đăng ký!"
