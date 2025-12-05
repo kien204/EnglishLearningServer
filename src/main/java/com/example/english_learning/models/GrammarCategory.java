@@ -1,5 +1,6 @@
 package com.example.english_learning.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,8 +20,10 @@ public class GrammarCategory {
 
     @ManyToOne
     @JoinColumn(name = "group_id", nullable = true)
+    @JsonIgnore
     private GrammarGroup group;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(MAX)")
     private String title;
+
 }

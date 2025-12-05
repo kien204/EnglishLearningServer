@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     List<Exercise> findByTopicAndGroupWord(Topic topic, Integer groupWord);
-    
+
     List<Exercise> findByGroupWord(int id);
+
 }

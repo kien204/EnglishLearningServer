@@ -34,6 +34,18 @@ public class GrammarCategoryService {
         return ResponseEntity.ok("Tạo thành công.");
     }
 
+    public ResponseEntity<?> createByJson(List<GrammarCategoryRequest> request) {
+        for (GrammarCategoryRequest request1 : request) {
+            GrammarGroup grammarGroup = grammarCategoryService.getGrammarGroupById(request1.getGroupId());
+
+            GrammarCategory grammarCategory = new GrammarCategory();
+            grammarCategory.setTitle(request1.getTitle());
+            grammarCategory.setGroup(grammarGroup);
+            grammarCategoryRepository.save(grammarCategory);
+        }
+        return ResponseEntity.ok("Tạo thành công.");
+    }
+
     public ResponseEntity<?> update(Long id, GrammarCategoryRequest request) {
         GrammarCategory grammarCategory = grammarCategoryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(

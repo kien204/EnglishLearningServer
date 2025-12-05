@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,23 +44,6 @@ public class TopicService {
     public Topic getById(Long id) {
         return topicRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Chủ đề."));
-    }
-
-    public ResponseEntity<?> getTreeTopic(Long id) {
-        List<Topic> listTopic = topicRepository.findBySkill_Id(id);
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        for (Topic topic : listTopic) {
-
-            List<Integer> groupWords =
-                    vocabularyRepository.findGroupWordByTopic(topic);
-
-            result.add(Map.of("topic_id", topic.getId(),
-                    "topic_name", topic.getName(),
-                    "group_words", groupWords));
-        }
-
-        return ResponseEntity.ok(result);
     }
 
     public ResponseEntity<?> createTopic(TopicRequest req) {

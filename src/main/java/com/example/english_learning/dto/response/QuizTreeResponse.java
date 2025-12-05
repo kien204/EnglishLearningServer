@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class QuizTreeResponse {
-    private Long id;
+    private Long exerciseId;
     private String topic;
     private Integer groupWord;
     private String title;
@@ -19,16 +19,14 @@ public class QuizTreeResponse {
 
     @Data
     public static class SubQuestionNode {
-        private Long id;
+        private Long questionId;
         private String questionText;
-        private String correct;
         private List<SubOptionNode> options;
 
         @Data
         public static class SubOptionNode {
-            private Long id;
+            private Long optionId;
             private String optionText;
-            private Boolean IsCorrect;
         }
     }
 }
