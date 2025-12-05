@@ -58,6 +58,14 @@ public class QuizTreeService {
     }
 
     /**
+     * ---------------- SUBMIT QUIZ TREE ----------------
+     */
+//    public List<ResultSubmitQuiz> submitQuizs(List<SubmitQuizRequest> submitQuizRequests) {
+//
+//    }
+
+
+    /**
      * ---------------- CREATE QUIZ TREE ----------------
      */
     public void uploadQuizFile(MultipartFile file) throws IOException {
@@ -82,7 +90,7 @@ public class QuizTreeService {
 
     private QuizTreeResponse mapExerciseToResponse(Exercise exercise) {
         QuizTreeResponse resp = new QuizTreeResponse();
-        resp.setId(exercise.getId());
+        resp.setExerciseId(exercise.getId());
         resp.setTopic(exercise.getTopic().getName());
         resp.setGroupWord(exercise.getGroupWord());
         resp.setTitle(exercise.getTitle());
@@ -96,16 +104,14 @@ public class QuizTreeService {
         List<Question> questions = questionRepository.findByExercise_Id(exercise.getId());
         List<QuizTreeResponse.SubQuestionNode> questionNodes = questions.stream().map(q -> {
             QuizTreeResponse.SubQuestionNode qNode = new QuizTreeResponse.SubQuestionNode();
-            qNode.setId(q.getId());
+            qNode.setQuestionId(q.getId());
             qNode.setQuestionText(q.getQuestionText());
-            qNode.setCorrect(exercise.getType() == 2 ? q.getCorrect() : null);
 
             List<QuestionOption> options = questionOptionRepository.findByQuestion_Id(q.getId());
             List<QuizTreeResponse.SubQuestionNode.SubOptionNode> optNodes = options.stream().map(o -> {
                 QuizTreeResponse.SubQuestionNode.SubOptionNode opt = new QuizTreeResponse.SubQuestionNode.SubOptionNode();
-                opt.setId(o.getId());
+                opt.setOptionId(o.getId());
                 opt.setOptionText(o.getOptionText());
-                opt.setIsCorrect(o.getIsCorrect());
                 return opt;
             }).toList();
             qNode.setOptions(optNodes);

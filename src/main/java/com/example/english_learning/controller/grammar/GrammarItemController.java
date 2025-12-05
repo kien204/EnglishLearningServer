@@ -41,6 +41,11 @@ public class GrammarItemController {
         return grammarItemService.getAlḷ();
     }
 
+    @GetMapping("/getByCategory/{id}")
+    public ResponseEntity<?> getByCategoryId(@PathVariable Long id) {
+        return grammarItemService.getByCategoryId(id);
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         return grammarItemService.delete(id);

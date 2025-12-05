@@ -28,11 +28,6 @@ public class TopicController {
         return topicService.getById(id);
     }
 
-    @GetMapping("/getTreeTopicVocabulary/{topicId}")
-    public ResponseEntity<?> getTreeTopicVocabulary(@PathVariable Long topicId) {
-        return topicService.getTreeTopic(topicId);
-    }
-
     @PostMapping("/create")
     public ResponseEntity<?> createTopic(@RequestBody TopicRequest request) {
         return topicService.createTopic(request);

@@ -22,6 +22,11 @@ public class GrammarCategoryController {
         return grammarCategoryService.create(request);
     }
 
+    @PostMapping("/createByJson")
+    public ResponseEntity<?> createJson(@RequestBody List<GrammarCategoryRequest> request) {
+        return grammarCategoryService.createByJson(request);
+    }
+
     // UPDATE
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(

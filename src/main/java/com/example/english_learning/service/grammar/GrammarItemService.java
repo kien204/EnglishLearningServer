@@ -249,6 +249,10 @@ public class GrammarItemService {
         return ResponseEntity.ok(grammarItemRepository.findAll());
     }
 
+    public ResponseEntity<?> getByCategoryId(Long id) {
+        return ResponseEntity.ok(grammarItemRepository.findByCategoryId(id));
+    }
+
     private String getCell(Row row, int column) {
         Cell cell = row.getCell(column);
         if (cell == null) return "";

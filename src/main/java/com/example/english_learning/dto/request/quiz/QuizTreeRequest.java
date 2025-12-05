@@ -18,7 +18,6 @@ public class QuizTreeRequest {
     @Data
     public static class SubQuestionNode {
         private String questionText;
-        private int ordering;
         private String correct;
         private List<QuizTreeRequest.SubQuestionNode.SubOptionNode> options;
 
