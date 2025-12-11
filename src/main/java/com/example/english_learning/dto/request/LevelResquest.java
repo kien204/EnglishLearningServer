@@ -6,5 +6,4 @@ import lombok.Data;
 public class LevelResquest {
     private String code;
     private String name;
-    private int ordering;
 }

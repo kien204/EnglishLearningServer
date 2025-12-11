@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface TopicRepository extends JpaRepository<Topic, Long> {
     List<Topic> findBySkill_Id(Long id);
+
+    List<Topic> findBySkill_IdAndLevel_Id(Long skillId, Long levelId);
 }

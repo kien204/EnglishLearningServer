@@ -27,7 +27,6 @@ public class LevelService {
         Level level = new Level();
         level.setName(req.getName());
         level.setCode(req.getCode());
-        level.setOrdering(req.getOrdering());
         levelRepository.save(level);
         return ResponseEntity.ok("Tạo cấp độ thành công");
     }
@@ -36,7 +35,6 @@ public class LevelService {
         Level level = getById(id);
         level.setName(req.getName());
         level.setCode(req.getCode());
-        level.setOrdering(req.getOrdering());
         levelRepository.save(level);
         return ResponseEntity.ok("Cập nhật cấp độ thành công");
     }

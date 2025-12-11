@@ -38,7 +38,7 @@ public class Topic {
     }
 
     @JsonProperty("skill")
-    public String getSkillName() {
-        return skill != null ? skill.getName() : null;
+    public Long getSkillId() {
+        return skill != null ? skill.getId() : null;
     }
 }

@@ -2,6 +2,7 @@ package com.example.english_learning.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,8 +26,7 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable()) // ✔ Tắt CSRF khi dùng API
-                .cors(cors -> {
-                })
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
 
                                 // ✔ Những API không cần JWT

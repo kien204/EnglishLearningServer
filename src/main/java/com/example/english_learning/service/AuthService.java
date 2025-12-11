@@ -10,6 +10,8 @@ import com.example.english_learning.mapper.AuthMapper;
 import com.example.english_learning.models.User;
 import com.example.english_learning.repository.UserRepository;
 import com.example.english_learning.security.JwtUtil;
+import com.example.english_learning.service.other.MailService;
+import com.example.english_learning.service.other.OtpService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

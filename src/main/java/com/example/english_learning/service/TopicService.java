@@ -41,6 +41,14 @@ public class TopicService {
         return ResponseEntity.ok(topicRepository.findAll());
     }
 
+    public ResponseEntity<?> getBySkillAndLevel(Long skillId, Long levelId) {
+        return ResponseEntity.ok(topicRepository.findBySkill_IdAndLevel_Id(skillId, levelId));
+    }
+
+    public ResponseEntity<?> getBySkill(Long skillId) {
+        return ResponseEntity.ok(topicRepository.findBySkill_Id(skillId));
+    }
+
     public Topic getById(Long id) {
         return topicRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Chủ đề."));
@@ -145,8 +153,8 @@ public class TopicService {
             Topic topic = new Topic();
             topic.setName(data.get("name").toString());
             topic.setDescription(data.get("description").toString());
-            topic.setSkill(toEntityService.getSkill(Long.parseLong(data.get("skill_id").toString())));
-            topic.setLevel(toEntityService.getLevel(Long.parseLong(data.get("level_id").toString())));
+            topic.setSkill(toEntityService.getSkill(Long.parseLong(data.get("skillId").toString())));
+            topic.setLevel(toEntityService.getLevel(Long.parseLong(data.get("levelId").toString())));
 
             topicRepository.save(topic);
         }

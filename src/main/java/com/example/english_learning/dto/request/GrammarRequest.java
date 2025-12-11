@@ -1,10 +1,10 @@
-package com.example.english_learning.dto.request.grammar;
+package com.example.english_learning.dto.request;
 
 import lombok.Data;
 
 @Data
-public class GrammarItemRequest {
-    private Long categoryId;
+public class GrammarRequest {
+    private Long topicId;
     private String title;
     private String structure;
     private String explanation;

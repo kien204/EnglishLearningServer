@@ -33,10 +33,6 @@ public class Vocabulary {
     private String v3; // động từ bất quy tắc V3
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "level_id", nullable = true)
-    private Level level; // liên kết tới bảng levels
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id", nullable = true)
     private Topic topic; // liên kết tới bảng topics
 
@@ -51,11 +47,6 @@ public class Vocabulary {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @JsonProperty("level")
-    public long getLevelName() {
-        return level != null ? level.getId() : null;
-    }
 
     @JsonProperty("topic")
     public long getTopicName() {

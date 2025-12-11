@@ -1,11 +1,7 @@
 package com.example.english_learning.service;
 
 import com.example.english_learning.models.*;
-import com.example.english_learning.repository.LevelRepository;
-import com.example.english_learning.repository.SkillRepository;
-import com.example.english_learning.repository.TopicRepository;
-import com.example.english_learning.repository.VocabularyRepository;
-import com.example.english_learning.repository.grammar.GrammarItemRepository;
+import com.example.english_learning.repository.*;
 import com.example.english_learning.repository.quiz.ExerciseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +18,7 @@ public class ToEntityService {
     @Autowired
     private VocabularyRepository vocabularyRepository;
     @Autowired
-    private GrammarItemRepository grammarItemRepository;
+    private GrammarRepository grammarItemRepository;
     @Autowired
     private ExerciseRepository exerciseRepository;
 
@@ -42,7 +38,7 @@ public class ToEntityService {
         return id == null ? null : vocabularyRepository.findById(id).orElse(null);
     }
 
-    public GrammarItem getGrammarItem(Long id) {
+    public Grammar getGrammarItem(Long id) {
         return id == null ? null : grammarItemRepository.findById(id).orElse(null);
     }
 

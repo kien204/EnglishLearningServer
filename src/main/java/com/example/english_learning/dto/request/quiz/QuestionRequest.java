@@ -6,9 +6,6 @@ import lombok.Data;
 public class QuestionRequest {
     private Long topicId;
     private Long vocabularyId;
-    private Long grammarId;
     private Long exerciseId;
     private String questionText;
-    private String correct;
-    private int groupWord;
 }

@@ -23,6 +23,16 @@ public class TopicController {
         return topicService.getAll();
     }
 
+    @GetMapping("/get-by-skill-level/{skillId}/{levelId}")
+    public ResponseEntity<?> getBySkillAndLevel(@PathVariable Long skillId, @PathVariable Long levelId) {
+        return topicService.getBySkillAndLevel(skillId, levelId);
+    }
+
+    @GetMapping("/get-by-skill/{skillId}")
+    public ResponseEntity<?> getBySkillAndLevel(@PathVariable Long skillId) {
+        return topicService.getBySkill(skillId);
+    }
+
     @GetMapping("/getById/{id}")
     public Topic getById(@PathVariable Long id) {
         return topicService.getById(id);

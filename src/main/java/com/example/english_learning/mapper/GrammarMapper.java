@@ -1,15 +1,15 @@
 package com.example.english_learning.mapper;
 
-import com.example.english_learning.dto.request.grammar.GrammarItemRequest;
-import com.example.english_learning.models.GrammarItem;
+import com.example.english_learning.dto.request.GrammarRequest;
+import com.example.english_learning.models.Grammar;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
 @Component
 @Data
-public class GrammarItemMapper {
-    public GrammarItem toEntity(GrammarItemRequest request) {
-        GrammarItem grammarItem = new GrammarItem();
+public class GrammarMapper {
+    public Grammar toEntity(GrammarRequest request) {
+        Grammar grammarItem = new Grammar();
         grammarItem.setTip(request.getTip());
         grammarItem.setTitle(request.getTitle());
         grammarItem.setExample(request.getExample());

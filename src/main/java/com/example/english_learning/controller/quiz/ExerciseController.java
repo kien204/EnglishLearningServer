@@ -3,8 +3,10 @@ package com.example.english_learning.controller.quiz;
 import com.example.english_learning.dto.request.quiz.ExerciseRequest;
 import com.example.english_learning.service.quiz.ExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/exercise")
@@ -22,15 +24,47 @@ public class ExerciseController {
         return exerciseService.findById(id);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createExercise(@RequestBody ExerciseRequest request) {
-        return exerciseService.create(request);
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createExercise(
+            @RequestParam(value = "topicId", required = false) Long topicId,
+            @RequestParam(value = "groupWord", required = false) Integer groupWord,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "type") int type,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestParam(value = "audio", required = false) MultipartFile audio
+    ) {
+
+        ExerciseRequest request = new ExerciseRequest();
+        request.setTopicId(topicId);
+        request.setGroupWord(groupWord);
+        request.setTitle(title);
+        request.setType(type);
+        request.setDescription(description);
+
+        return exerciseService.create(request, image, audio);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateExercise(@PathVariable Long id, @RequestBody ExerciseRequest request) {
-        return exerciseService.update(id, request);
+
+    @PutMapping(value = "/update/{id}", consumes = "multipart/form-data")
+    public ResponseEntity<?> updateExercise(@PathVariable Long id, @RequestParam(value = "topicId", required = false) Long topicId,
+                                            @RequestParam(value = "groupWord", required = false) Integer groupWord,
+                                            @RequestParam(value = "title", required = false) String title,
+                                            @RequestParam(value = "type") int type,
+                                            @RequestParam(value = "description", required = false) String description,
+                                            @RequestParam(value = "image", required = false) MultipartFile image,
+                                            @RequestParam(value = "audio", required = false) MultipartFile audio
+    ) {
+
+        ExerciseRequest request = new ExerciseRequest();
+        request.setTopicId(topicId);
+        request.setGroupWord(groupWord);
+        request.setTitle(title);
+        request.setType(type);
+        request.setDescription(description);
+        return exerciseService.update(id, request, image, audio);
     }
+
 
     @DeleteMapping("/deleteAll")
     public ResponseEntity<?> deleteAllExercises() {

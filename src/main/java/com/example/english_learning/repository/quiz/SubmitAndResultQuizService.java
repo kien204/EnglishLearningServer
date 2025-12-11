@@ -7,7 +7,10 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class SubmitAndResultQuizService {
@@ -29,22 +32,19 @@ public class SubmitAndResultQuizService {
             );
 
             if (exercise.getType() == 0) {
-                long totalQuestions = questionRepository.countByExercise_Id(request.getExerciseId());
+                long totalQuestions = request.getAnswers().size();
 
-                // Load đáp án đúng 1 lần — convert thành HashSet để lookup O(1)
                 Set<Long> correctOptionIds = new HashSet<>(
                         questionOptionRepository.findCorrectOptionIdsByExercise(request.getExerciseId())
                 );
 
                 List<SubmitQuizResponse.SelectQuestion> answerResults = new ArrayList<>();
 
-
                 long correctCount = request.getAnswers().stream()
                         .map(answer -> {
                             boolean isCorrect = answer.getSelectedOptionId() != null &&
                                     correctOptionIds.contains(answer.getSelectedOptionId());
 
-                            // add vào list trả về FE
                             answerResults.add(new SubmitQuizResponse.SelectQuestion(
                                     answer.getQuestionId(),
                                     answer.getSelectedOptionId(),
@@ -53,19 +53,22 @@ public class SubmitAndResultQuizService {
 
                             return isCorrect;
                         })
-                        .filter(Objects::nonNull)
-                        .filter(correctOptionIds::contains)
+                        .filter(isCorrect -> isCorrect)
                         .count();
 
                 SubmitQuizResponse response = new SubmitQuizResponse();
 
                 float score = (float) (Math.round((correctCount * 10.0 / totalQuestions) * 100) / 100.0);
+
                 response.setScore(score);
+                response.setCorrectCount(correctCount);
                 response.setExerciseId(request.getExerciseId());
                 response.setTotalQuestions(totalQuestions);
                 response.setResults(answerResults);
+
                 responses.add(response);
             }
+
 
         }
 

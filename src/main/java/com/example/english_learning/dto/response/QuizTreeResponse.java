@@ -14,7 +14,6 @@ public class QuizTreeResponse {
     private String description;
     private String imageUrl;
     private String audioUrl;
-    private List<String> groupOptionList;
     private List<SubQuestionNode> subQuestionNodes;
 
     @Data

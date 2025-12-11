@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
-    List<Exercise> findByTopicAndGroupWord(Topic topic, Integer groupWord);
+    List<Exercise> findByTopic(Topic topic);
 
     List<Exercise> findByGroupWord(int id);
 

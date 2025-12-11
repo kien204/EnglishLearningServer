@@ -39,7 +39,6 @@ public class VocabularyService {
         }
 
         Vocabulary vocab = vocabularyMapper.toEntity(req);
-        vocab.setLevel(toEntityService.getLevel(req.getLevelId()));
         vocab.setTopic(toEntityService.getTopic(req.getTopicId()));
 
         vocabularyRepository.save(vocab);
@@ -57,7 +56,6 @@ public class VocabularyService {
         vocab.setExampleEn(req.getExampleEn());
         vocab.setExampleVn(req.getExampleVn());
         vocab.setGroupWord(req.getGroupWord());
-        vocab.setLevel(toEntityService.getLevel(req.getLevelId()));
         vocab.setTopic(toEntityService.getTopic(req.getTopicId()));
 
         return vocabularyRepository.save(vocab);
@@ -156,7 +154,6 @@ public class VocabularyService {
         vocab.setExampleEn((String) data.get("exampleEn"));
         vocab.setExampleVn((String) data.get("exampleVn"));
         vocab.setGroupWord((Integer) data.get("groupWord"));
-        vocab.setLevel(toEntityService.getLevel(getLong(data.get("levelId"))));
         vocab.setTopic(toEntityService.getTopic(getLong(data.get("topicId"))));
 
         vocabularyRepository.save(vocab);
@@ -173,7 +170,6 @@ public class VocabularyService {
         vocab.setExampleEn(cols.get(8).trim());
         vocab.setExampleVn(cols.get(9).trim());
         vocab.setGroupWord(Integer.parseInt(cols.get(10).trim()));
-        vocab.setLevel(toEntityService.getLevel(Long.parseLong(cols.get(6).trim())));
         vocab.setTopic(toEntityService.getTopic(Long.parseLong(cols.get(7).trim())));
 
         vocabularyRepository.save(vocab);
@@ -190,7 +186,6 @@ public class VocabularyService {
         vocab.setExampleEn(getCellValue(row.getCell(8)));
         vocab.setExampleVn(getCellValue(row.getCell(9)));
         vocab.setGroupWord(Integer.parseInt(getCellValue(row.getCell(10))));
-        vocab.setLevel(toEntityService.getLevel(Long.parseLong(getCellValue(row.getCell(6)))));
         vocab.setTopic(toEntityService.getTopic(Long.parseLong(getCellValue(row.getCell(7)))));
 
         vocabularyRepository.save(vocab);

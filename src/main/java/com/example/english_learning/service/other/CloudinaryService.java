@@ -1,4 +1,4 @@
-package com.example.english_learning.service;
+package com.example.english_learning.service.other;
 
 import com.cloudinary.Cloudinary;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -3,6 +3,8 @@ package com.example.english_learning.service.quiz;
 import com.example.english_learning.dto.request.quiz.QuestionRequest;
 import com.example.english_learning.models.Exercise;
 import com.example.english_learning.models.Question;
+import com.example.english_learning.models.Vocabulary;
+import com.example.english_learning.repository.VocabularyRepository;
 import com.example.english_learning.repository.quiz.ExerciseRepository;
 import com.example.english_learning.repository.quiz.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class QuestionService {
 
     @Autowired
     private ExerciseRepository exerciseRepository;
+
+    @Autowired
+    private VocabularyRepository vocabularyRepository;
 
     public ResponseEntity<?> getAllQuestions() {
         return ResponseEntity.ok(questionRepository.findAll());
@@ -35,9 +40,13 @@ public class QuestionService {
                         "Bài tập không tồn tại")
         );
 
+        Vocabulary vocabulary = vocabularyRepository.findById(request.getVocabularyId()).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Từ vựng không tồn tại"));
+
         Question savedQuestion = Question.builder()
                 .questionText(request.getQuestionText())
-                .groupWord(request.getGroupWord())
+                .vocabulary(vocabulary)
                 .exercise(exercise)
                 .build();
         questionRepository.save(savedQuestion);
@@ -50,11 +59,15 @@ public class QuestionService {
                         "Bài tập không tồn tại")
         );
 
+        Vocabulary vocabulary = vocabularyRepository.findById(request.getVocabularyId()).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Từ vựng không tồn tại"));
+
         Question existingQuestion = questionRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Câu hỏi không tồn tại"));
 
         existingQuestion.setQuestionText(request.getQuestionText());
-        existingQuestion.setGroupWord(request.getGroupWord());
+        existingQuestion.setVocabulary(vocabulary);
         existingQuestion.setExercise(exercise);
         questionRepository.save(existingQuestion);
         return ResponseEntity.ok("Cập nhật câu hỏi thành công");

@@ -1,4 +1,4 @@
-package com.example.english_learning.service;
+package com.example.english_learning.service.other;
 
 import com.example.english_learning.models.Otp;
 import com.example.english_learning.repository.OtpRepository;

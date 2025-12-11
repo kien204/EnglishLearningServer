@@ -1,7 +1,7 @@
-package com.example.english_learning.controller.grammar;
+package com.example.english_learning.controller;
 
-import com.example.english_learning.dto.request.grammar.GrammarItemRequest;
-import com.example.english_learning.service.grammar.GrammarItemService;
+import com.example.english_learning.dto.request.GrammarRequest;
+import com.example.english_learning.service.GrammarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,25 +13,25 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/grammarItem")
-public class GrammarItemController {
+public class GrammarController {
 
     @Autowired
-    private GrammarItemService grammarItemService;
+    private GrammarService grammarItemService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody GrammarItemRequest request) {
+    public ResponseEntity<?> create(@RequestBody GrammarRequest request) {
         return grammarItemService.create(request);
     }
 
     @PostMapping("/create/withJson")
-    public ResponseEntity<?> create(@RequestBody List<GrammarItemRequest> request) {
+    public ResponseEntity<?> create(@RequestBody List<GrammarRequest> request) {
         return grammarItemService.createWithJson(request);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(
             @PathVariable Long id,
-            @RequestBody GrammarItemRequest request
+            @RequestBody GrammarRequest request
     ) {
         return grammarItemService.update(id, request);
     }
@@ -41,9 +41,9 @@ public class GrammarItemController {
         return grammarItemService.getAlḷ();
     }
 
-    @GetMapping("/getByCategory/{id}")
-    public ResponseEntity<?> getByCategoryId(@PathVariable Long id) {
-        return grammarItemService.getByCategoryId(id);
+    @GetMapping("/getByTopic/{topicId}")
+    public ResponseEntity<?> getByTopic(@PathVariable Long topicId) {
+        return grammarItemService.getByTopicId(topicId);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -72,13 +72,7 @@ public class GrammarItemController {
         }
 
         try {
-            if (fileName.endsWith(".csv") || fileName.endsWith(".txt")) {
-                return grammarItemService.importCsv(file);
-
-            } else if (fileName.endsWith(".xlsx")) {
-                return grammarItemService.importXlsx(file);
-
-            } else if (fileName.endsWith(".json")) {
+            if (fileName.endsWith(".json")) {
                 return grammarItemService.importFromJson(file);
 
             } else {

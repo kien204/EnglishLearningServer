@@ -2,9 +2,11 @@ package com.example.english_learning.service.quiz;
 
 import com.example.english_learning.dto.request.quiz.QuizTreeRequest;
 import com.example.english_learning.dto.response.QuizTreeResponse;
-import com.example.english_learning.models.*;
+import com.example.english_learning.models.Exercise;
+import com.example.english_learning.models.Question;
+import com.example.english_learning.models.QuestionOption;
+import com.example.english_learning.models.Topic;
 import com.example.english_learning.repository.quiz.ExerciseRepository;
-import com.example.english_learning.repository.quiz.GroupOptionRepository;
 import com.example.english_learning.repository.quiz.QuestionOptionRepository;
 import com.example.english_learning.repository.quiz.QuestionRepository;
 import com.example.english_learning.service.ToEntityService;
@@ -17,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -33,8 +37,6 @@ public class QuizTreeService {
     @Autowired
     private QuestionOptionRepository questionOptionRepository;
     @Autowired
-    private GroupOptionRepository groupOptionRepository;
-    @Autowired
     private TopicService topicService;
 
     /**
@@ -42,11 +44,21 @@ public class QuizTreeService {
      */
     public List<QuizTreeResponse> getQuizTree(Long topicId) {
         Topic topic = topicService.getById(topicId);
-        List<Exercise> exercises = exerciseRepository.findByTopicAndGroupWord(topic, null);
 
-        return exercises.stream()
-                .map(this::mapExerciseToResponse)
-                .toList();
+        if (topic.getSkillId() == 2) {
+            List<Exercise> exercises = exerciseRepository.findByTopic(topic);
+            QuizTreeResponse mergedResponse = mapExercisesToMergedResponse(exercises);
+
+            // Trả về List chứa 1 phần tử duy nhất (là bài đã gộp)
+            return List.of(mergedResponse);
+        } else {
+
+            List<Exercise> exercises = exerciseRepository.findByTopic(topic);
+
+            return exercises.stream()
+                    .map(this::mapExerciseToResponse)
+                    .toList();
+        }
     }
 
     public List<QuizTreeResponse> getQuizByGroupWord(int groupWord) {
@@ -87,6 +99,74 @@ public class QuizTreeService {
         return ResponseEntity.ok("Tạo cây câu hỏi thành công");
     }
 
+    // Hàm này nhận vào List<Exercise> thay vì 1 Exercise
+    public QuizTreeResponse mapExercisesToMergedResponse(List<Exercise> exercises) {
+        if (exercises == null || exercises.isEmpty()) {
+            return null;
+        }
+
+        // 1. Tạo đối tượng Response chung (Lấy thông tin từ bài đầu tiên hoặc set chung)
+        QuizTreeResponse resp = new QuizTreeResponse();
+        Exercise firstEx = exercises.get(0);
+
+        // Set Metadata chung (bạn có thể tùy chỉnh lại tiêu đề cho phù hợp)
+        resp.setExerciseId(firstEx.getId()); // ID 0 để đánh dấu là bài tổng hợp
+        resp.setTopic(firstEx.getTopic().getName());
+        resp.setTitle("Tổng hợp: " + firstEx.getTopic().getName());
+        resp.setType(firstEx.getType());
+        resp.setDescription("Bài tập tổng hợp gồm " + exercises.size() + " phần.");
+        resp.setImageUrl(firstEx.getImageUrl());
+        resp.setAudioUrl(firstEx.getAudioUrl());
+
+        // 2. Khởi tạo List chứa TẤT CẢ các node câu hỏi
+        List<QuizTreeResponse.SubQuestionNode> allQuestionNodes = new ArrayList<>();
+
+        // Xác định logic số lượng (sl) dựa trên số lượng bài tập đầu vào
+        int sl = exercises.size();
+
+        // 3. Duyệt qua từng bài tập để lấy câu hỏi và gộp vào list tổng
+        for (Exercise exercise : exercises) {
+            List<Question> questions;
+
+            // Logic lấy câu hỏi (như code cũ của bạn)
+            if (sl == 1) {
+                questions = questionRepository.findByExercise_Id(exercise.getId());
+            } else if (sl == 2) {
+                questions = questionRepository.findRandomByExerciseId(exercise.getId(), 15);
+            } else {
+                questions = questionRepository.findRandomByExerciseId(exercise.getId(), 10);
+            }
+
+            // Map Question -> SubQuestionNode
+            List<QuizTreeResponse.SubQuestionNode> nodes = questions.stream().map(q -> {
+                QuizTreeResponse.SubQuestionNode qNode = new QuizTreeResponse.SubQuestionNode();
+                qNode.setQuestionId(q.getId());
+                qNode.setQuestionText(q.getQuestionText());
+
+                List<QuestionOption> options = questionOptionRepository.findByQuestion_Id(q.getId());
+                List<QuizTreeResponse.SubQuestionNode.SubOptionNode> optNodes = options.stream().map(o -> {
+                    QuizTreeResponse.SubQuestionNode.SubOptionNode opt = new QuizTreeResponse.SubQuestionNode.SubOptionNode();
+                    opt.setOptionId(o.getId());
+                    opt.setOptionText(o.getOptionText());
+                    return opt;
+                }).toList();
+
+                qNode.setOptions(optNodes);
+                return qNode;
+            }).toList();
+
+            // QUAN TRỌNG: Gộp list node con vào list tổng
+            allQuestionNodes.addAll(nodes);
+        }
+
+        // 4. (Tùy chọn) Xáo trộn câu hỏi để bài tổng hợp ngẫu nhiên hơn
+        Collections.shuffle(allQuestionNodes);
+
+        // 5. Set list tổng vào response
+        resp.setSubQuestionNodes(allQuestionNodes);
+
+        return resp;
+    }
 
     private QuizTreeResponse mapExerciseToResponse(Exercise exercise) {
         QuizTreeResponse resp = new QuizTreeResponse();
@@ -98,8 +178,6 @@ public class QuizTreeService {
         resp.setDescription(exercise.getDescription());
         resp.setImageUrl(exercise.getImageUrl());
         resp.setAudioUrl(exercise.getAudioUrl());
-        resp.setGroupOptionList(exercise.getType() == 2 ?
-                groupOptionRepository.findOptionTextByExerciseId(exercise.getId()) : null);
 
         List<Question> questions = questionRepository.findByExercise_Id(exercise.getId());
         List<QuizTreeResponse.SubQuestionNode> questionNodes = questions.stream().map(q -> {
@@ -123,32 +201,18 @@ public class QuizTreeService {
     }
 
     @Transactional
-    public void saveQuizTree(QuizTreeRequest request) {
+    private void saveQuizTree(QuizTreeRequest request) {
 
         // 1. Tạo Exercise
         Exercise exercise = new Exercise();
-        exercise.setTopic(quizEntityService.getTopic(request.getTopicId()));
+        exercise.setTopic(topicService.getById(request.getTopicId()));
         exercise.setGroupWord(request.getGroupWord());
         exercise.setTitle(request.getTitle());
         exercise.setType(request.getType());
+        exercise.setDescription(request.getDescription());
         exercise.setImageUrl(request.getImageUrl());
         exercise.setAudioUrl(request.getAudioUrl());
         exerciseRepository.save(exercise);
-
-        // 2. Lưu GroupOption nếu type = 2
-        if (request.getType() == 2 && request.getGroupOptionList() != null) {
-            List<GroupOption> groupOptions = request.getGroupOptionList()
-                    .stream()
-                    .map(text -> {
-                        GroupOption g = new GroupOption();
-                        g.setExercise(exercise);
-                        g.setOptionText(text);
-                        return g;
-                    })
-                    .toList();
-
-            groupOptionRepository.saveAll(groupOptions);
-        }
 
         // 3. Lưu Question + Options
         if (request.getSubQuestionNodes() != null) {
@@ -158,7 +222,7 @@ public class QuizTreeService {
                         // Question
                         Question q = new Question();
                         q.setQuestionText(node.getQuestionText());
-                        q.setCorrect(node.getCorrect());
+                        q.setVocabulary(quizEntityService.getVocabulary(node.getVocabulary_id()));
                         q.setExercise(exercise);
                         questionRepository.save(q);
 

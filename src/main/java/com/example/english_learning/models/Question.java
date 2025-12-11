@@ -25,17 +25,8 @@ public class Question {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "topic_id", nullable = true)
-    private Topic topic;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vocabulary_id", nullable = true)
     private Vocabulary vocabulary;
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "grammar_item_id", nullable = true)
-    private GrammarItem grammarItem;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exercise_id", nullable = true)
@@ -43,12 +34,6 @@ public class Question {
 
     @Column(name = "question_text", columnDefinition = "NVARCHAR(MAX)")
     private String questionText;
-
-    @Column(columnDefinition = "NVARCHAR(MAX)")
-    private String correct;
-
-    @Column(name = "group_word")
-    private Integer groupWord; // ví dụ tiếng Việt
 
     @OneToMany(mappedBy = "question")
     @JsonIgnoreProperties("exercise")
@@ -59,13 +44,8 @@ public class Question {
         return exercise != null ? exercise.getId() : null;
     }
 
-    @JsonProperty("topic")
-    private String getTopicName() {
-        return topic != null ? topic.getName() : null;
-    }
-
     @JsonProperty("vocabulary")
-    public String getVocabularyName() {
-        return vocabulary != null ? vocabulary.getWord() : null;
+    public Long getVocabularyId() {
+        return vocabulary != null ? vocabulary.getId() : null;
     }
 }

@@ -22,8 +22,4 @@ public class Level {
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(MAX)")
     private String name;  // ví dụ: Beginner, Intermediate
-
-    @Column(nullable = true)
-    private Integer ordering;  // thứ tự hiển thị
-
 }

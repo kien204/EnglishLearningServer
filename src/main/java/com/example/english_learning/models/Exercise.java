@@ -48,10 +48,6 @@ public class Exercise {
     @JsonIgnore
     private List<Question> questions;
 
-    @OneToMany(mappedBy = "exercise")
-    @JsonIgnore
-    private List<GroupOption> groupOptions;
-
     @JsonProperty("topic")
     private String getTopicName() {
         return topic != null ? topic.getName() : null;

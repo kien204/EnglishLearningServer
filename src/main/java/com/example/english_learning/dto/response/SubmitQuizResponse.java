@@ -12,6 +12,7 @@ import java.util.List;
 public class SubmitQuizResponse {
     private Long exerciseId;
     private Float score;
+    private Long correctCount;
     private Long totalQuestions;
     private List<SelectQuestion> results;
 

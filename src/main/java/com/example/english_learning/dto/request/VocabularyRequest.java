@@ -10,7 +10,6 @@ public class VocabularyRequest {
     private String meaningVn;
     private String v2;
     private String v3;
-    private Long levelId;
     private Long topicId;
     private String exampleEn;
     private String exampleVn;

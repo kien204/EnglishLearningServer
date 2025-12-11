@@ -9,12 +9,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "grammar_items")
+@Table(name = "grammar")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GrammarItem {
+public class Grammar {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,10 +22,10 @@ public class GrammarItem {
 
     // category_id
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = true)
+    @JoinColumn(name = "topic_id", nullable = true)
     // @JsonIgnoreProperties("group")
     @JsonBackReference
-    private GrammarCategory category;
+    private Topic topic;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String title;
