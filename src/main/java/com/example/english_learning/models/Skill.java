@@ -26,6 +26,9 @@ public class Skill {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
+    @Column(name = "visible_on_topbar")
+    private Boolean visibleOnTopbar = false;
+
 //    @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Topic> topics;
 }

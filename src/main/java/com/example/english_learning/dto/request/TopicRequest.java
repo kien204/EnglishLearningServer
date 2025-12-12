@@ -8,4 +8,5 @@ public class TopicRequest {
     private Long levelId;
     private String name;
     private String description;
+    private String imageUrl;
 }

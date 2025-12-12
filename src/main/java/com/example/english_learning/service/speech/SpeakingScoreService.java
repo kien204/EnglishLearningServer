@@ -1,6 +1,6 @@
 package com.example.english_learning.service.speech;
 
-import com.example.english_learning.service.other.GeminiService;
+import com.example.english_learning.service.other.AIService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SpeakingScoreService {
 
-    private final GeminiService geminiService;
+    private final AIService AIService;
     private final PronunciationService pronunciationService;
 
     public Map<String, Object> evaluate(Long exerciseId, Map<String, Object> pythonResult) {
@@ -22,7 +22,7 @@ public class SpeakingScoreService {
         var pron = pronunciationService.score(pythonResult);
 
         // 2) Content scoring (Grammar - Vocabulary - Coherence - Relevance)
-        Map<String, Object> aiScore = geminiService.gradeContent(exerciseId, transcript);
+        Map<String, Object> aiScore = AIService.gradeContent(exerciseId, transcript);
 
         double grammar = toDouble(aiScore.get("grammar_score"));
         double vocab = toDouble(aiScore.get("vocab_score"));

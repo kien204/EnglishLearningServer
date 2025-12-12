@@ -3,6 +3,7 @@ package com.example.english_learning.controller;
 import com.example.english_learning.dto.request.TopicRequest;
 import com.example.english_learning.models.Topic;
 import com.example.english_learning.service.TopicService;
+import com.example.english_learning.service.other.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +18,8 @@ import java.util.Map;
 public class TopicController {
     @Autowired
     private TopicService topicService;
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @GetMapping("/getAll")
     public ResponseEntity<?> getAllTopics() {
@@ -38,13 +41,47 @@ public class TopicController {
         return topicService.getById(id);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createTopic(@RequestBody TopicRequest request) {
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createTopic(@RequestParam(value = "skillId") Long skillId,
+                                         @RequestParam(value = "levelId") Long levelId,
+                                         @RequestParam(value = "name") String name,
+                                         @RequestParam(value = "description") String description,
+                                         @RequestParam(value = "image", required = false) MultipartFile image) {
+        TopicRequest request = new TopicRequest();
+        request.setLevelId(levelId);
+        request.setSkillId(skillId);
+        request.setName(name);
+        request.setDescription(description);
+        if (image == null || image.isEmpty()) {
+            request.setImageUrl(null);
+        } else {
+            String url = cloudinaryService.uploadFile(image);
+            request.setImageUrl(url);
+        }
         return topicService.createTopic(request);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateTopic(@PathVariable Long id, @RequestBody TopicRequest request) {
+    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateTopic(
+            @PathVariable Long id,
+            @RequestParam(value = "skillId") Long skillId,
+            @RequestParam(value = "levelId") Long levelId,
+            @RequestParam(value = "name") String name,
+            @RequestParam(value = "description") String description,
+            @RequestParam(value = "imageUrl", required = false) String imageUrl,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
+
+        TopicRequest request = new TopicRequest();
+        request.setLevelId(levelId);
+        request.setSkillId(skillId);
+        request.setName(name);
+        request.setDescription(description);
+        request.setImageUrl(imageUrl);
+        if (image != null && !image.isEmpty()) {
+            String url = cloudinaryService.uploadFile(image);
+            request.setImageUrl(url);
+        }
+
         return topicService.updateTopic(id, request);
     }
 

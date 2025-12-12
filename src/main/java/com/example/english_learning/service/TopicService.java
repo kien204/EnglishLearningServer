@@ -58,6 +58,7 @@ public class TopicService {
         Topic topic = new Topic();
         topic.setName(req.getName());
         topic.setDescription(req.getDescription());
+        topic.setImageUrl(req.getImageUrl());
         topic.setSkill(skillService.getById(req.getSkillId()));
         topic.setLevel(levelService.getById(req.getLevelId()));
         topicRepository.save(topic);
@@ -68,6 +69,7 @@ public class TopicService {
         Topic topic = getById(id);
         topic.setName(req.getName());
         topic.setDescription(req.getDescription());
+        topic.setImageUrl(req.getImageUrl());
         topic.setSkill(skillService.getById(req.getSkillId()));
         topic.setLevel(levelService.getById(req.getLevelId()));
         topicRepository.save(topic);

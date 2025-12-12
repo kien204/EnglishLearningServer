@@ -14,13 +14,10 @@ public class EnglishLearningApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // Lấy port, mặc định 8082
-
-
         String port = System.getProperty("server.port", "8082");
 
         // URL Swagger hoặc frontend
         String swaggerUrl = "http://localhost:" + port + "/swagger-ui/index.html";
-
         // In ra consoleq
         System.out.println("🔗 Swagger UI: " + swaggerUrl);
 

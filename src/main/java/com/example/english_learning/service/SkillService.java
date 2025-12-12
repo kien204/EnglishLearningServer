@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class SkillService {
@@ -14,8 +16,8 @@ public class SkillService {
     private final SkillRepository skillRepository;
 
     // -------------------- CRUD --------------------
-    public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(skillRepository.findAll());
+    public List<Skill> getAll() {
+        return skillRepository.findAll();
     }
 
     public Skill getById(Long id) {
@@ -28,6 +30,7 @@ public class SkillService {
         skill.setName(req.getName());
         skill.setDescription(req.getDescription());
         skill.setCode(req.getCode());
+        skill.setVisibleOnTopbar(req.getVisibleOnTopbar());
         skillRepository.save(skill);
         return ResponseEntity.ok("Tạo Kỹ năng thành công.");
     }
@@ -37,6 +40,7 @@ public class SkillService {
         skill.setName(req.getName());
         skill.setDescription(req.getDescription());
         skill.setCode(req.getCode());
+        skill.setVisibleOnTopbar(req.getVisibleOnTopbar());
         skillRepository.save(skill);
         return ResponseEntity.ok("Cập nhật Kỹ năng thành công.");
     }

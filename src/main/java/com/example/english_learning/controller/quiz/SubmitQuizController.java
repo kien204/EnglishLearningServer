@@ -5,8 +5,8 @@ import com.example.english_learning.dto.request.quiz.SubmitQuizRequest;
 import com.example.english_learning.dto.request.quiz.WritingRequest;
 import com.example.english_learning.dto.response.SubmitQuizResponse;
 import com.example.english_learning.repository.quiz.SubmitAndResultQuizService;
-import com.example.english_learning.service.other.GeminiService;
-import com.example.english_learning.service.speech.AIService;
+import com.example.english_learning.service.other.AIService;
+import com.example.english_learning.service.speech.PythonService;
 import com.example.english_learning.service.speech.SpeakingScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,9 +24,9 @@ public class SubmitQuizController {
     @Autowired
     SubmitAndResultQuizService submitAndResultQuizService;
     @Autowired
-    private AIService pythonService;
+    private PythonService pythonService;
     @Autowired
-    private GeminiService geminiService;
+    private AIService AIService;
     @Autowired
     private SpeakingScoreService speakingScoreService;
 
@@ -61,7 +61,7 @@ public class SubmitQuizController {
     @PostMapping(value = "/submit-writing")
     public Map<String, Object> submitWriting(@RequestBody WritingRequest request) {
 
-        return geminiService.gradeContent(request.getExerciseId(), request.getTranscript());
+        return AIService.gradeContent(request.getExerciseId(), request.getTranscript());
     }
 
     // Hàm phụ trợ để ép kiểu số an toàn (Tránh lỗi Integer vs Double)

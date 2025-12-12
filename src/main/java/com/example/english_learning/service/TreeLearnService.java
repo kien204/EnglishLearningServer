@@ -1,6 +1,5 @@
 package com.example.english_learning.service;
 
-import com.example.english_learning.models.Grammar;
 import com.example.english_learning.models.Topic;
 import com.example.english_learning.repository.GrammarRepository;
 import com.example.english_learning.repository.TopicRepository;
@@ -48,12 +47,11 @@ public class TreeLearnService {
         List<Map<String, Object>> result = new ArrayList<>();
 
         for (Topic topic : listTopic) {
-            List<Grammar> grammarList = grammarRepository.findAllByTopicId(topic.getId());
+            // List<Grammar> grammarList = grammarRepository.findAllByTopicId(topic.getId());
 
             result.add(Map.of("topic_id", topic.getId(),
                     "topic_name", topic.getName(),
-                    "description", topic.getDescription(),
-                    "grammar_list", grammarList));
+                    "description", topic.getDescription()));
         }
 
         return ResponseEntity.ok(result);

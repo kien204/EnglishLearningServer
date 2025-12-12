@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class AIService {
+public class PythonService {
 
     // Địa chỉ của Python Server (Chạy ở cổng 5000)
     private final String PYTHON_URL = "http://127.0.0.1:5000";

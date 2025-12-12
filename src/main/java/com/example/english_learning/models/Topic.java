@@ -31,6 +31,7 @@ public class Topic {
 
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
+    private String imageUrl = null;
 
     @JsonProperty("level")
     public String getLevelName() {

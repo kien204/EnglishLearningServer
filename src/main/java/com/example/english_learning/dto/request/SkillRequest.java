@@ -7,4 +7,5 @@ public class SkillRequest {
     private String code;
     private String name;
     private String description;
+    private Boolean visibleOnTopbar;
 }
