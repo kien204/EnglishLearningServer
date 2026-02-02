@@ -1,7 +1,6 @@
 package com.example.english_learning.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Question {
 
     @Id
@@ -34,9 +32,8 @@ public class Question {
 
     @Column(name = "question_text", columnDefinition = "NVARCHAR(MAX)")
     private String questionText;
-
-    @OneToMany(mappedBy = "question")
-    @JsonIgnoreProperties("exercise")
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<QuestionOption> questionOptions;
 
     @JsonProperty("exercise")

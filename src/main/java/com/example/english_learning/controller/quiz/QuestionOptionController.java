@@ -16,14 +16,19 @@ public class QuestionOptionController {
     @Autowired
     private QuestionOptionService optionService;
 
-    @GetMapping("getAll")
-    public ResponseEntity<?> getAllQuestionOptions() {
-        return optionService.getAll();
-    }
+//    @GetMapping("getAll")
+//    public ResponseEntity<?> getAllQuestionOptions() {
+//        return optionService.getAll();
+//    }
 
     @GetMapping("getById/{id}")
     public ResponseEntity<?> getQuestionOptionById(@PathVariable Long id) {
         return optionService.findById(id);
+    }
+
+    @GetMapping("getByQuestionId/{questionId}")
+    public ResponseEntity<?> getOptionsByQuestionId(@PathVariable Long questionId) {
+        return optionService.findByQuestionId(questionId);
     }
 
     @PostMapping("/create")

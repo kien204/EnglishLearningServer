@@ -46,6 +46,21 @@ public class SubmitQuizController {
             @PathVariable Long exerciseId,
             @RequestParam("audio") MultipartFile audio) {
 
+        List<String> supportedTypes = List.of(
+                "audio/mpeg",
+                "audio/wav",
+                "audio/x-wav",
+                "audio/mp4"
+        );
+
+        String contentType = audio.getContentType();
+        if (contentType == null || !supportedTypes.contains(contentType)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Chỉ chấp nhận file audio hợp lệ (MP3, WAV, MP4)"
+            );
+        }
+
         try {
             Map<String, Object> pythonResult = pythonService.scoreAudio(audio);
             Map<String, Object> finalScore = speakingScoreService.evaluate(exerciseId, pythonResult);

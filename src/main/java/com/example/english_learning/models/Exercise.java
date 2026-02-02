@@ -1,7 +1,6 @@
 package com.example.english_learning.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Exercise {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,12 +42,12 @@ public class Exercise {
     @Column(name = "audio_url")
     private String audioUrl;
 
-    @OneToMany(mappedBy = "exercise")
+    @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Question> questions;
 
     @JsonProperty("topic")
-    private String getTopicName() {
-        return topic != null ? topic.getName() : null;
+    private Long getTopicName() {
+        return topic != null ? topic.getId() : null;
     }
 }

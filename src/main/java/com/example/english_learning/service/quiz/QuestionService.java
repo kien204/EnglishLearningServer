@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Service
 public class QuestionService {
     @Autowired
@@ -34,16 +36,25 @@ public class QuestionService {
         return ResponseEntity.ok(question);
     }
 
+    public ResponseEntity<?> getQuestionsByQuizId(Long id) {
+        List<Question> question = questionRepository.findByExercise_Id(id);
+        return ResponseEntity.ok(question);
+    }
+
     public ResponseEntity<?> createQuestion(QuestionRequest request) {
         Exercise exercise = exerciseRepository.findById(request.getExerciseId()).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Bài tập không tồn tại")
         );
 
-        Vocabulary vocabulary = vocabularyRepository.findById(request.getVocabularyId()).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Từ vựng không tồn tại"));
+        Vocabulary vocabulary = null;
 
+        if (request.getVocabularyId() != null) {
+
+            vocabulary = vocabularyRepository.findById(request.getVocabularyId()).orElseThrow(() ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Từ vựng không tồn tại"));
+        }
         Question savedQuestion = Question.builder()
                 .questionText(request.getQuestionText())
                 .vocabulary(vocabulary)
@@ -59,9 +70,14 @@ public class QuestionService {
                         "Bài tập không tồn tại")
         );
 
-        Vocabulary vocabulary = vocabularyRepository.findById(request.getVocabularyId()).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Từ vựng không tồn tại"));
+        Vocabulary vocabulary = null;
+
+        if (request.getVocabularyId() != null) {
+
+            vocabulary = vocabularyRepository.findById(request.getVocabularyId()).orElseThrow(() ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Từ vựng không tồn tại"));
+        }
 
         Question existingQuestion = questionRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Câu hỏi không tồn tại"));

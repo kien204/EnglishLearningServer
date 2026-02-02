@@ -26,9 +26,6 @@ public class PythonService {
     @Autowired
     private RestTemplate restTemplate;
 
-    /**
-     * Chức năng 1: Gửi text sang Python để dịch
-     */
     public Map<String, Object> translateText(TranslateRequest request) {
         String url = PYTHON_URL + "/translate";
 
@@ -55,33 +52,23 @@ public class PythonService {
         }
     }
 
-    /**
-     * Chức năng 2: Gửi file Audio sang Python để chấm điểm
-     * Cơ chế: Spring lưu file tạm -> Gửi file tạm sang Python -> Xóa file tạm
-     */
     public Map<String, Object> scoreAudio(MultipartFile file) {
         String url = PYTHON_URL + "/transcribe";
         File tempFile = null;
 
         try {
-            // Bước 1: Lưu file từ RAM xuống ổ cứng (tạm thời)
-            // Vì RestTemplate cần 1 file vật lý để gửi đi
             Path tempDir = Files.createTempDirectory("upload_audio_temp");
             tempFile = tempDir.resolve(file.getOriginalFilename()).toFile();
             file.transferTo(tempFile);
 
-            // Bước 2: Chuẩn bị Header Multipart
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-            // Bước 3: Chuẩn bị Body
-            // "file" ở đây phải trùng khớp tên với bên Python: file: UploadFile = File(...)
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("file", new FileSystemResource(tempFile));
 
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-            // Bước 4: Gửi sang Python
             ResponseEntity<Map> response = restTemplate.postForEntity(url, requestEntity, Map.class);
 
             return response.getBody();
@@ -89,9 +76,9 @@ public class PythonService {
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Xử lý file không thành công");
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chức năng hiện không thể sử dụng. Vui lòng thử lại sau");
         } finally {
-            // Bước 5: Dọn dẹp (Xóa file tạm để không rác máy)
             if (tempFile != null && tempFile.exists()) {
                 boolean deleted = tempFile.delete();
                 if (!deleted) System.err.println("Không thể xóa file tạm: " + tempFile.getAbsolutePath());

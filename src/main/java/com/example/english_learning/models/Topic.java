@@ -1,11 +1,14 @@
 package com.example.english_learning.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Table(name = "topics")
@@ -32,6 +35,15 @@ public class Topic {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
     private String imageUrl = null;
+
+    @OneToMany(
+            mappedBy = "topic",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @JsonIgnore
+    private List<Exercise> exercises;
+
 
     @JsonProperty("level")
     public String getLevelName() {

@@ -20,7 +20,6 @@ public class Grammar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // category_id
     @ManyToOne
     @JoinColumn(name = "topic_id", nullable = true)
     // @JsonIgnoreProperties("group")

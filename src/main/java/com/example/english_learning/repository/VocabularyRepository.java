@@ -11,9 +11,8 @@ import java.util.List;
 
 @Repository
 public interface VocabularyRepository extends JpaRepository<Vocabulary, Long> {
-    boolean existsByWord(String id);
+    boolean existsByWordAndPos(String word, String pos);
 
-    boolean existsByPos(String pos);
 
     List<Vocabulary> findByTopic_Id(Long id);
 

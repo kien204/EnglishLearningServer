@@ -3,12 +3,15 @@ package com.example.english_learning.controller;
 import com.example.english_learning.dto.request.GrammarRequest;
 import com.example.english_learning.service.GrammarService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -21,11 +24,6 @@ public class GrammarController {
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody GrammarRequest request) {
         return grammarItemService.create(request);
-    }
-
-    @PostMapping("/create/withJson")
-    public ResponseEntity<?> create(@RequestBody List<GrammarRequest> request) {
-        return grammarItemService.createWithJson(request);
     }
 
     @PutMapping("/update/{id}")
@@ -75,15 +73,39 @@ public class GrammarController {
             if (fileName.endsWith(".json")) {
                 return grammarItemService.importFromJson(file);
 
+            } else if (fileName.endsWith(".xlsx")) {
+                return grammarItemService.importFromExcel(file);
+
             } else {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Định dạng không hỗ trợ. Chỉ CSV, TXT, JSON, XLSX."));
+                        .body(Map.of("message", "Định dạng không hỗ trợ. Chỉ JSON, XLSX."));
             }
 
         } catch (Exception e) {
             return ResponseEntity.status(500)
                     .body(Map.of("message", "Lỗi khi đọc file: " + e.getMessage()));
         }
+    }
+
+    @GetMapping("/export/xlsx")
+    public ResponseEntity<InputStreamResource> exportXlsx() throws IOException {
+
+        ByteArrayInputStream stream = grammarItemService.exportToExcel();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=grammar.xlsx"
+        );
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(
+                        MediaType.parseMediaType(
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+                )
+                .body(new InputStreamResource(stream));
     }
 }
 

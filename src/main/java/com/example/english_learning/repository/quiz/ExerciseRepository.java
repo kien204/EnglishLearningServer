@@ -11,4 +11,6 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
 
     List<Exercise> findByGroupWord(int id);
 
+    List<Exercise> findByTopic_Skill_Id(Long skillId);
+
 }

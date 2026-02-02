@@ -5,12 +5,17 @@ import com.example.english_learning.models.Vocabulary;
 import com.example.english_learning.service.VocabularyService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -70,10 +75,10 @@ public class VocabularyController {
         return vocabularyService.updateVocabulary(id, re);
     }
 
-    @GetMapping("/getAll")
-    public List<Vocabulary> getAllVocabulary() {
-        return vocabularyService.getAllVocabulary();
-    }
+//    @GetMapping("/getAll")
+//    public List<Vocabulary> getAllVocabulary() {
+//        return vocabularyService.getAllVocabulary();
+//    }
 
     @GetMapping("/getById/{id}")
     public Vocabulary getVocabularyById(@PathVariable Long id) {
@@ -95,6 +100,18 @@ public class VocabularyController {
         return vocabularyService.getByListByGroup(id);
     }
 
+    @GetMapping("/getVocabularies")
+    public Object getVocabularies(@RequestParam int page, @RequestParam int size) {
+        Page<Vocabulary> pageData = vocabularyService.getVocabularies(page - 1, size);
+
+        return ResponseEntity.ok(Map.of(
+                "data", pageData.getContent(),
+                "currentPage", pageData.getNumber(),
+                "totalItems", pageData.getTotalElements(),
+                "totalPages", pageData.getTotalPages()
+        ));
+    }
+
     @DeleteMapping("/deleteAll")
     public ResponseEntity<?> delteAllLevel() {
         return vocabularyService.deleteAll();
@@ -104,6 +121,28 @@ public class VocabularyController {
     public ResponseEntity<?> deleteById(@PathVariable Long id) {
         return vocabularyService.deleteById(id);
     }
+
+    @GetMapping("/export/xlsx")
+    public ResponseEntity<InputStreamResource> exportXlsx() throws IOException {
+
+        ByteArrayInputStream stream = vocabularyService.exportToXlsx();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=vocabulary.xlsx"
+        );
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(
+                        MediaType.parseMediaType(
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+                )
+                .body(new InputStreamResource(stream));
+    }
+
 
 }
 

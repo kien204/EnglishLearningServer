@@ -9,6 +9,9 @@ import com.example.english_learning.repository.TopicRepository;
 import com.example.english_learning.repository.quiz.ExerciseRepository;
 import com.example.english_learning.service.other.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -108,6 +111,17 @@ public class ExerciseService {
 
     public ResponseEntity<?> getAll() {
         return ResponseEntity.ok(exerciseRepository.findAll());
+    }
+
+    public Page<Exercise> getExercisePage(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return exerciseRepository.findAll(pageable);
+    }
+
+    public ResponseEntity<?> getByTopic(Long topicId) {
+        Topic topic = topicRepository.findById(topicId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Topic"));
+        return ResponseEntity.ok(exerciseRepository.findByTopic(topic));
     }
 
     public ResponseEntity<?> findById(Long id) {

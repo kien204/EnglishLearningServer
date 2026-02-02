@@ -3,6 +3,7 @@ package com.example.english_learning.service;
 import com.example.english_learning.Utils.CheckEmailUtils;
 import com.example.english_learning.Utils.CheckPhone;
 import com.example.english_learning.dto.request.ResetPasswordRequest;
+import com.example.english_learning.dto.request.UserRequest;
 import com.example.english_learning.dto.request.auth.LoginRequest;
 import com.example.english_learning.dto.request.auth.RegisterRequest;
 import com.example.english_learning.dto.response.LoginResponse;
@@ -64,7 +65,13 @@ public class AuthService {
             );
         }
 
-        if (!user.isActivate()) {
+        if (user.getStatus() == 2) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Tài khoản đã bị khóa!"
+            );
+        }
+
+        if (user.getStatus() == 0) {
             String otp = otpService.generateOtp(loginRequest.getEmail());
             try {
                 mailService.sendOtp(loginRequest.getEmail(), otp);
@@ -89,7 +96,7 @@ public class AuthService {
                         "password", user.getPassword(),
                         "phone", user.getPhone(),
                         "role", user.getRole(),
-                        "isActivate", user.isActivate()
+                        "status", user.getStatus()
                 ))
                 .build();
     }
@@ -144,7 +151,7 @@ public class AuthService {
         return "Đã gửi mã OTP đến email của bạn";
     }
 
-    public Object updateRole(int id, String role) {
+    public Object updateRole(Long id, String role) {
         User user = userRepository.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Tài khoản không tồn tại")
         );
@@ -205,7 +212,7 @@ public class AuthService {
             );
         }
 
-        user.setActivate(Boolean.TRUE);
+        user.setStatus(1);
         userRepository.save(user);
 
         otpService.clearOtp(email);
@@ -213,7 +220,21 @@ public class AuthService {
         return ResponseEntity.ok("Kích hoạt tài khoản thành công");
     }
 
-    public User getUserById(int id) {
+    public ResponseEntity<?> status(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Người dùng không tồn tại!"));
+
+        if (user.getStatus() == 1) {
+            user.setStatus(2);
+        } else if (user.getStatus() == 2) {
+            user.setStatus(1);
+        }
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Thao tác tài khoản thành công");
+    }
+
+    public User getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Không tìm thấy người dùng."
@@ -229,7 +250,7 @@ public class AuthService {
     }
 
     // ==================== DELETE USER BY ID (ADMIN ONLY) ====================
-    public String deleteUserById(int id) {
+    public String deleteUserById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Không tìm thấy người dùng."
@@ -238,5 +259,48 @@ public class AuthService {
 
         userRepository.deleteById(id);
         return "Xóa người dùng thành công.";
+    }
+
+    public String updateProfile(Long id, UserRequest userRequest) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Không tìm thấy người dùng."
+                ));
+        user.setName(userRequest.getName());
+        user.setPhone(userRequest.getPhone());
+        user.setBirthday(userRequest.getBirthday());
+        user.setGender(userRequest.getGender());
+        user.setAddress(userRequest.getAddress());
+
+        userRepository.save(user);
+        return "Cập nhật hồ sơ thành công.";
+    }
+
+    public String updateAvatar(Long id, String avatarUrl) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+
+        user.setAvatarUrl(avatarUrl);
+        userRepository.save(user);
+
+        return "Cập nhật avatar thành công";
+    }
+
+    public String changePassword(Long id, String oldPassword, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Không tìm thấy người dùng."
+                ));
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Mật khẩu cũ không đúng."
+            );
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return "Đổi mật khẩu thành công.";
     }
 }

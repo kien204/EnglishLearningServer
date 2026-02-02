@@ -38,19 +38,29 @@ public class AIService {
         // Prompt giữ nguyên logic, nhưng thêm chỉ dẫn rõ ràng hơn về JSON cho Llama 3
         String safeTranscript = transcript.replace("\"", "\\\"");
         String prompt = """
-                    You are a strict but helpful English writing tutor.
+                You are a strict but helpful English writing tutor.
                 
                 Topic/Question: "%s"
                 Student Answer: "%s"
                 
-                Task 1: Analyze the writing and score from 0 to 10 for: grammar, vocab, coherence, relevance.
+                Task 0: Check if the student answer is relevant to the topic.
+                - If the answer does not address the topic, assign a low relevance_score (0-2) and note clearly in the feedback.
+                - If the answer partially addresses the topic, assign a medium relevance_score (3-6).
+                - If the answer fully addresses the topic, assign a high relevance_score (7-10).
+                
+                Task 1: Analyze the writing and score from 0 to 10 for:
+                - grammar
+                - vocabulary
+                - coherence
+                - relevance (from Task 0)
                 
                 Task 2: Create a "corrected_version" in natural, advanced (C1 level) English.
                 
-                Task 3: Write a detailed "feedback" in Vietnamese. 
-                IMPORTANT: The feedback must be structured and detailed. Do not give vague advice. 
-                Use the following format for the feedback text:
-                - **Nhận xét chung:** [Tóm tắt điểm mạnh/yếu]
+                Task 3: Write a detailed "feedback" in Vietnamese.
+                - Include a note about how relevant the answer is to the topic.
+                - Use the following format:
+                
+                - **Nhận xét chung:** [Tóm tắt điểm mạnh/yếu, nêu rõ nếu lạc đề]
                 - **Phân tích từ vựng (Vocabulary):** [List specific words the student used -> Better words used in the corrected version. Explain why the new word is better.]
                 - **Phân tích ngữ pháp & Cấu trúc (Grammar):** [Point out specific errors or awkward sentences -> How to fix them. Explain the rule.]
                 
@@ -61,10 +71,11 @@ public class AIService {
                   "vocab_score": number,
                   "coherence_score": number,
                   "relevance_score": number,
-                  "feedback": "string", 
+                  "feedback": "string",
                   "corrected_version": "string"
                 }
                 """.formatted(title, safeTranscript);
+
 
         // Build Request Body theo chuẩn OpenAI (mà Groq sử dụng)
         Map<String, Object> requestBody = Map.of(

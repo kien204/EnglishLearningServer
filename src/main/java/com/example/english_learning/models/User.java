@@ -3,6 +3,7 @@ package com.example.english_learning.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -20,9 +21,15 @@ public class User {
     private String email;
     private String password;
     private String phone;
+    private LocalDate birthday;
+    @Column(columnDefinition = "NVARCHAR(10)")
+    private String gender;
+    @Column(columnDefinition = "NVARCHAR(50)")
+    private String address;
+    private String avatarUrl;
     private String role = "USER";
-    @Column(name = "is_activate")
-    private boolean isActivate = false;
+    @Column(name = "status")
+    private long status = 0;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();

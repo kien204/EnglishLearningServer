@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface QuestionOptionRepository extends JpaRepository<QuestionOption, Long> {
-    public List<QuestionOption> findByQuestion_Id(Long questionId);
+    List<QuestionOption> findByQuestion_Id(Long questionId);
 
     @Query("""
                 SELECT o.id 

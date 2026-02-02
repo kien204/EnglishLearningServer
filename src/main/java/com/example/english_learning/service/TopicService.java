@@ -60,7 +60,11 @@ public class TopicService {
         topic.setDescription(req.getDescription());
         topic.setImageUrl(req.getImageUrl());
         topic.setSkill(skillService.getById(req.getSkillId()));
-        topic.setLevel(levelService.getById(req.getLevelId()));
+        if (req.getLevelId() != null) {
+            topic.setLevel(levelService.getById(req.getLevelId()));
+        } else {
+            topic.setLevel(null);
+        }
         topicRepository.save(topic);
         return ResponseEntity.ok("Tạo Chủ đề thành công.");
     }
@@ -71,7 +75,11 @@ public class TopicService {
         topic.setDescription(req.getDescription());
         topic.setImageUrl(req.getImageUrl());
         topic.setSkill(skillService.getById(req.getSkillId()));
-        topic.setLevel(levelService.getById(req.getLevelId()));
+        if (req.getLevelId() != null) {
+            topic.setLevel(levelService.getById(req.getLevelId()));
+        } else {
+            topic.setLevel(null);
+        }
         topicRepository.save(topic);
         return ResponseEntity.ok("Cập nhật Chủ đề thành công.");
     }

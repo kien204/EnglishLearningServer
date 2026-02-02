@@ -51,14 +51,19 @@ public class AuthController {
         return authService.activateUser(email, otp);
     }
 
+    @PutMapping("/status-account/{id}")
+    public ResponseEntity<?> statusAccount(@PathVariable Long id) {
+        return authService.status(id);
+    }
+
     @Operation(summary = "Cập nhật vai trò tài khoản")
     @PutMapping("/updateRole/{id}")
-    public Object updateRole(@PathVariable int id, @RequestParam String role) {
+    public Object updateRole(@PathVariable Long id, @RequestParam String role) {
         return authService.updateRole(id, role);
     }
 
     @GetMapping("/getbyid/{id}")
-    public User getUserById(@PathVariable int id) {
+    public User getUserById(@PathVariable Long id) {
         return authService.getUserById(id);
     }
 
@@ -69,7 +74,7 @@ public class AuthController {
 
     // ==================== DELETE USER BY ID (ADMIN ONLY) ====================
     @DeleteMapping("/{id}")
-    public String deleteUserById(@PathVariable int id) {
+    public String deleteUserById(@PathVariable Long id) {
         return authService.deleteUserById(id);
     }
 }

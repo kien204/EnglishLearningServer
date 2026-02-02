@@ -22,6 +22,11 @@ public class QuestionController {
         return questionService.getQuestionById(id);
     }
 
+    @GetMapping("/getByQuizId/{quizId}")
+    public ResponseEntity<?> getQuestionsByQuizId(@PathVariable Long quizId) {
+        return questionService.getQuestionsByQuizId(quizId);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> createQuestion(@RequestBody QuestionRequest request) {
         return questionService.createQuestion(request);

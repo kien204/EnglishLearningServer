@@ -42,11 +42,13 @@ public class TopicController {
     }
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createTopic(@RequestParam(value = "skillId") Long skillId,
-                                         @RequestParam(value = "levelId") Long levelId,
-                                         @RequestParam(value = "name") String name,
-                                         @RequestParam(value = "description") String description,
-                                         @RequestParam(value = "image", required = false) MultipartFile image) {
+    public ResponseEntity<?> createTopic(
+            @RequestParam("skillId") Long skillId,
+            @RequestParam(value = "levelId", required = false) Long levelId,
+            @RequestParam("name") String name,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "image", required = false) MultipartFile image
+    ) {
         TopicRequest request = new TopicRequest();
         request.setLevelId(levelId);
         request.setSkillId(skillId);

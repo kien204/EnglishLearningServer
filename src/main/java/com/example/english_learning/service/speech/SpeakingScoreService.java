@@ -32,17 +32,14 @@ public class SpeakingScoreService {
         double overall = (pron.score() + grammar + vocab + coherence + relevance) / 5;
 
         if (relevance <= 2) overall *= 0.20;
-        else if (relevance <= 4) overall *= 0.50;
-        else if (relevance <= 6) overall *= 0.80;
+        else if (relevance <= 4) overall *= 0.40;
+        else if (relevance <= 7) overall *= 0.70;
 
         Map<String, Object> finalResult = new LinkedHashMap<>();
         finalResult.put("transcript", transcript);
         finalResult.put("overall_score", round(overall));
 
         finalResult.put("pronunciation_score", pron.score());
-        finalResult.put("speaking_speed_wpm", pron.wpm());
-        finalResult.put("pause_count", pron.pauses());
-        finalResult.put("accuracy_score", pron.accuracy());
 
         finalResult.put("grammar_score", grammar);
         finalResult.put("vocab_score", vocab);

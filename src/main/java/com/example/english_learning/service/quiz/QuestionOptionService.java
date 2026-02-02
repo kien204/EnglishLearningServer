@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -54,9 +55,15 @@ public class QuestionOptionService {
         questionOptionRepository.save(questionOption);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Cập nhật tùy chọn câu hỏi thành công", "data", questionOption));
     }
+//
+//    public ResponseEntity<?> getAll() {
+//        return ResponseEntity.ok(questionOptionRepository.findAll());
+//    }
 
-    public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(questionOptionRepository.findAll());
+    public ResponseEntity<?> findByQuestionId(Long id) {
+        List<QuestionOption> questionOption = questionOptionRepository.findByQuestion_Id(id);
+
+        return ResponseEntity.ok(questionOption);
     }
 
     public ResponseEntity<?> findById(Long id) {
